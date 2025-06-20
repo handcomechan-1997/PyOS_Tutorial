@@ -1,4 +1,4 @@
-# Python简单操作系统 (PyOS) - 学习教程
+# PyOS - Python操作系统学习项目
 
 一个用Python实现的简单操作系统模拟器，用于学习和演示操作系统的基本概念。这是一个**教学项目**，旨在通过动手实践来深入理解操作系统原理。
 
@@ -12,83 +12,48 @@
 4. **数据结构**: 队列、栈、树、哈希表在系统中的应用
 5. **算法设计**: 调度算法、页面置换算法等
 
-## 📚 学习路径
-
-### 阶段1: 基础框架理解 (1-2天)
-- [x] 项目结构搭建
-- [x] 基础类定义
-- [ ] **任务**: 理解现有代码结构
-- [ ] **任务**: 运行基础框架，观察日志输出
-
-### 阶段2: 进程管理实现 (3-5天)
-- [ ] **核心任务**: 实现进程调度算法
-- [ ] **扩展任务**: 实现进程间通信
-- [ ] **验证**: 创建多个进程并观察调度过程
-
-### 阶段3: 内存管理实现 (3-5天)
-- [ ] **核心任务**: 实现虚拟内存系统
-- [ ] **扩展任务**: 实现页面置换算法
-- [ ] **验证**: 模拟内存分配和回收
-
-### 阶段4: 文件系统实现 (3-5天)
-- [ ] **核心任务**: 实现基本文件操作
-- [ ] **扩展任务**: 实现目录结构
-- [ ] **验证**: 创建、读写、删除文件
-
-### 阶段5: Shell和命令系统 (2-3天)
-- [ ] **核心任务**: 实现基本Shell命令
-- [ ] **扩展任务**: 实现管道和重定向
-- [ ] **验证**: 在终端中运行命令
-
-## 🏗️ 项目架构
+## 🏗️ 当前项目架构
 
 ```
 PyOS/
 ├── kernel/                 # 内核模块
-│   ├── __init__.py
 │   ├── system.py          # ✅ 系统核心 (已完成)
 │   ├── scheduler.py       # ✅ 进程调度器框架 (已完成)
-│   ├── memory_manager.py  # 🔄 内存管理器 (需要实现)
-│   ├── interrupt.py       # ⏳ 中断处理 (待实现)
-│   └── system_call.py     # ⏳ 系统调用 (待实现)
+│   ├── memory_manager.py  # 🔄 内存管理器 (基础框架)
+│   ├── interrupt.py       # ✅ 中断处理框架 (已完成)
+│   └── system_call.py     # ✅ 系统调用框架 (已完成)
 ├── process/               # 进程管理
-│   ├── __init__.py
 │   ├── process.py         # ✅ 进程类 (已完成)
 │   ├── pcb.py            # ✅ 进程控制块 (已完成)
 │   ├── process_table.py   # ✅ 进程表 (已完成)
 │   └── process_manager.py # ✅ 进程管理器 (已完成)
 ├── memory/                # 内存管理
-│   ├── __init__.py
-│   ├── virtual_memory.py  # ⏳ 虚拟内存 (待实现)
-│   ├── page_table.py      # ⏳ 页表管理 (待实现)
-│   └── memory_allocator.py # ⏳ 内存分配器 (待实现)
+│   ├── virtual_memory.py  # ✅ 虚拟内存框架 (已完成)
+│   ├── page_table.py      # ✅ 页表管理框架 (已完成)
+│   └── memory_allocator.py # ✅ 内存分配器框架 (已完成)
 ├── filesystem/            # 文件系统
-│   ├── __init__.py
-│   ├── file_system.py     # ⏳ 文件系统核心 (待实现)
-│   ├── inode.py          # ⏳ 索引节点 (待实现)
-│   ├── directory.py      # ⏳ 目录管理 (待实现)
-│   └── file_operations.py # ⏳ 文件操作 (待实现)
+│   ├── file_system.py     # ✅ 文件系统核心框架 (已完成)
+│   ├── inode.py          # ✅ 索引节点框架 (已完成)
+│   ├── directory.py      # ✅ 目录管理框架 (已完成)
+│   └── file_operations.py # ✅ 文件操作框架 (已完成)
 ├── device/                # 设备管理
-│   ├── __init__.py
-│   ├── device_manager.py  # ⏳ 设备管理器 (待实现)
-│   ├── terminal.py        # ⏳ 终端设备 (待实现)
-│   ├── keyboard.py        # ⏳ 键盘设备 (待实现)
-│   └── display.py         # ⏳ 显示设备 (待实现)
+│   ├── device_manager.py  # ✅ 设备管理器 (已完成)
+│   ├── terminal.py        # ✅ 终端设备 (已完成)
+│   ├── keyboard.py        # ✅ 键盘设备 (已完成)
+│   └── display.py         # ✅ 显示设备 (已完成)
 ├── shell/                 # 命令行界面
-│   ├── __init__.py
-│   ├── shell.py          # ⏳ Shell核心 (待实现)
-│   ├── commands.py       # ⏳ 内置命令 (待实现)
-│   └── parser.py         # ⏳ 命令解析器 (待实现)
+│   ├── shell.py          # ✅ Shell核心框架 (已完成)
+│   ├── commands.py       # ✅ 内置命令框架 (已完成)
+│   └── parser.py         # ✅ 命令解析器框架 (已完成)
 ├── utils/                 # 工具模块
-│   ├── __init__.py
 │   ├── logger.py         # ✅ 日志系统 (已完成)
-│   └── config.py         # ⏳ 配置管理 (待实现)
+│   └── config.py         # 🔄 配置管理 (基础框架)
 ├── main.py               # ✅ 主程序入口 (已完成)
 ├── requirements.txt      # ✅ 依赖包 (已完成)
 └── README.md            # 📖 项目说明 (当前文件)
 ```
 
-**图例**: ✅ 已完成 | 🔄 部分完成 | ⏳ 待实现
+**图例**: ✅ 已完成框架 | 🔄 部分完成 | ⏳ 待实现
 
 ## 🚀 快速开始
 
@@ -98,51 +63,160 @@ PyOS/
 # 确保Python版本 >= 3.8
 python --version
 
-# 克隆项目
-git clone <repository-url>
-cd PyOS
-
 # 安装依赖
 pip install -r requirements.txt
 ```
 
-### 运行基础框架
+### 运行系统
 
 ```bash
 # 运行系统
 python main.py
 ```
 
-你应该看到类似输出：
+**预期输出**:
 ```
 ==================================================
     Python简单操作系统 (PyOS)
     版本: 1.0.0
     作者: 学习项目
 ==================================================
+2025-06-21 00:14:52 - PyOS - INFO - PyOS系统启动中...
+2025-06-21 00:14:52 - PyOS - INFO - 注册系统调用: getpid
+2025-06-21 00:14:52 - PyOS - INFO - 注册系统调用: time
+2025-06-21 00:14:52 - PyOS - INFO - 注册系统调用: sleep
+2025-06-21 00:14:52 - PyOS - INFO - 文件系统初始化
+2025-06-21 00:14:52 - device.device_manager - INFO - Device Manager initialized
+2025-06-21 00:14:52 - PyOS - INFO - 系统核心初始化完成
+2025-06-21 00:14:52 - PyOS - INFO - 系统启动中...
+2025-06-21 00:14:52 - PyOS - INFO - 文件系统初始化完成
+2025-06-21 00:14:52 - device.device_manager - INFO - Initializing Device Manager...
+2025-06-21 00:14:52 - device.device_manager - INFO - Device terminal_0 (System Terminal) registered
+2025-06-21 00:14:52 - device.device_manager - INFO - Device keyboard_0 (System Keyboard) registered
+2025-06-21 00:14:52 - device.device_manager - INFO - Device display_0 (System Display) registered
+2025-06-21 00:14:52 - device.terminal - INFO - Terminal terminal_0 initialized
+2025-06-21 00:14:52 - PyOS - INFO - 进程管理器初始化完成
+2025-06-21 00:14:52 - PyOS - INFO - 进程调度器启动
+2025-06-21 00:14:52 - PyOS - INFO - 所有子系统初始化完成
+2025-06-21 00:14:52 - PyOS - INFO - 系统启动完成
 系统启动成功！
+
+系统错误: cannot import name 'Shell' from partially initialized module 'shell.shell' (most likely due to a circular import)
 ```
 
-## 📖 详细教程
+**注意**: 当前Shell模块存在循环导入问题，这是第一个需要解决的问题。
 
-### 第一课: 理解现有框架
+## 📚 详细学习路径
 
-#### 1.1 系统启动流程
-1. `main.py` 创建 `System` 对象
-2. `System.boot()` 初始化各个子系统
-3. 启动系统监控线程
-4. 准备启动Shell (目前未实现)
+### 阶段1: 解决基础问题 (第1天)
 
-#### 1.2 关键类说明
-- **System**: 系统核心，协调各个子系统
-- **Process**: 表示一个进程，包含状态、资源等信息
-- **Scheduler**: 进程调度器，决定哪个进程运行
-- **MemoryManager**: 内存管理器，分配和回收内存
-- **Logger**: 日志系统，记录系统事件
+#### 1.1 解决Shell循环导入问题
+**问题**: Shell模块存在循环导入，导致系统无法启动Shell界面。
 
-#### 1.3 练习任务
+**学习目标**: 理解Python模块导入机制和循环导入的解决方法。
+
+**任务**:
+1. 分析 `shell/shell.py` 和 `shell/commands.py` 的导入关系
+2. 使用类型提示字符串或延迟导入解决循环导入
+3. 验证系统能正常启动Shell
+
+**实现步骤**:
 ```python
-# 在 main.py 中添加以下代码来测试进程创建
+# 在 shell/commands.py 中，将
+from .shell import Shell
+
+# 改为
+# 删除这行导入，使用字符串类型提示
+def __init__(self, shell: 'Shell'):
+```
+
+**验证方法**:
+```bash
+python main.py
+# 应该看到Shell界面启动，而不是循环导入错误
+```
+
+**预期输出**:
+```
+欢迎使用PyOS Shell!
+输入 'help' 查看可用命令，输入 'exit' 退出系统
+
+PyOS:/>
+```
+
+#### 1.2 实现基础Shell命令
+**学习目标**: 理解命令解析和执行流程。
+
+**任务**: 实现以下基础命令：
+- `help` - 显示帮助信息
+- `version` - 显示系统版本
+- `echo` - 输出文本
+- `clear` - 清屏
+
+**实现位置**: `shell/commands.py`
+
+**验证方法**:
+```bash
+PyOS:/> help
+PyOS:/> version
+PyOS:/> echo "Hello World"
+PyOS:/> clear
+```
+
+**预期输出**:
+```
+PyOS Shell 帮助
+================
+基本命令:
+  help            - 显示此帮助
+  version         - 显示系统版本
+  echo <文本>     - 输出文本
+  clear           - 清屏
+  exit            - 退出系统
+
+PyOS:/> version
+PyOS 版本: 1.0.0
+
+PyOS:/> echo "Hello World"
+Hello World
+```
+
+### 阶段2: 进程管理实现 (第2-3天)
+
+#### 2.1 理解进程管理框架
+**学习目标**: 理解进程创建、调度和管理的核心概念。
+
+**关键文件**:
+- `process/process.py` - 进程类定义
+- `process/process_manager.py` - 进程管理器
+- `kernel/scheduler.py` - 进程调度器
+
+**学习任务**:
+1. 阅读进程相关代码，理解进程状态转换
+2. 理解进程控制块(PCB)的作用
+3. 理解调度器的工作原理
+
+#### 2.2 实现进程创建和基本调度
+**任务**: 完善进程创建和基本调度功能。
+
+**实现位置**: `process/process_manager.py`
+
+**关键方法**:
+```python
+def create_process(self, name: str, target=None, priority=0) -> Process:
+    """创建新进程"""
+    # TODO: 实现进程创建逻辑
+    pass
+
+def start_process(self, pid: int) -> bool:
+    """启动进程"""
+    # TODO: 实现进程启动逻辑
+    pass
+```
+
+**验证方法**:
+```python
+# 在 main.py 中添加测试代码
 def test_process_creation():
     system = System()
     system.boot()
@@ -155,300 +229,255 @@ def test_process_creation():
     process = system.process_manager.create_process("test_process", target=test_task)
     print(f"Created process: {process}")
     
-    # 等待一段时间让进程执行
+    # 启动进程
+    system.process_manager.start_process(process.pid)
+    
+    # 等待进程执行
     import time
     time.sleep(2)
     
     system.shutdown()
-
-if __name__ == "__main__":
-    test_process_creation()
 ```
 
-### 第二课: 实现进程调度算法
-
-#### 2.1 当前状态
-- 基础调度器框架已完成
-- 使用简单的轮转调度
-- 需要实现更高级的调度算法
-
-#### 2.2 实现任务
-
-**任务1: 实现优先级调度**
-```python
-# 在 kernel/scheduler.py 中实现
-class PriorityScheduler(Scheduler):
-    def __init__(self):
-        super().__init__()
-        self.priority_queues = {}  # 按优先级分组
-    
-    def add_process(self, process: Process):
-        # TODO: 实现优先级队列
-        pass
-    
-    def _scheduler_loop(self):
-        # TODO: 实现优先级调度逻辑
-        pass
+**预期输出**:
+```
+Created process: Process(id=1, name=test_process, state=READY)
+Hello from test process!
+Process test_process completed with result: test completed
 ```
 
-**任务2: 实现多级反馈队列**
-```python
-# 在 kernel/scheduler.py 中实现
-class MLFQScheduler(Scheduler):
-    def __init__(self):
-        super().__init__()
-        self.queues = []  # 多个优先级队列
-        self.time_slices = []  # 每个队列的时间片
-    
-    def add_process(self, process: Process):
-        # TODO: 新进程加入最高优先级队列
-        pass
-    
-    def _scheduler_loop(self):
-        # TODO: 实现多级反馈队列调度
-        pass
+#### 2.3 实现进程命令
+**任务**: 在Shell中实现进程管理命令。
+
+**实现位置**: `shell/commands.py`
+
+**需要实现的命令**:
+- `ps` - 显示进程列表
+- `kill <pid>` - 终止进程
+- `sleep <seconds>` - 创建睡眠进程
+
+**验证方法**:
+```bash
+PyOS:/> ps
+PID  Name         State    Priority
+1    init         RUNNING  0
+2    shell        READY    1
+
+PyOS:/> sleep 5 &
+[1] 3
+
+PyOS:/> ps
+PID  Name         State    Priority
+1    init         RUNNING  0
+2    shell        READY    1
+3    sleep        SLEEPING 0
+
+PyOS:/> kill 3
+Process 3 terminated
 ```
 
-#### 2.3 验证方法
+### 阶段3: 内存管理实现 (第4-5天)
+
+#### 3.1 理解内存管理框架
+**学习目标**: 理解虚拟内存、分页和内存分配的概念。
+
+**关键文件**:
+- `memory/virtual_memory.py` - 虚拟内存管理
+- `memory/page_table.py` - 页表管理
+- `memory/memory_allocator.py` - 内存分配器
+
+#### 3.2 实现基本内存分配
+**任务**: 实现简单的内存分配和释放功能。
+
+**实现位置**: `memory/memory_allocator.py`
+
+**关键方法**:
 ```python
-def test_scheduling():
-    system = System()
-    system.boot()
-    
-    # 创建不同优先级的进程
-    processes = []
-    for i in range(5):
-        def task(pid):
-            return lambda: print(f"Process {pid} executing")
-        
-        process = system.process_manager.create_process(
-            f"process_{i}", 
-            priority=i,
-            target=task(i)
-        )
-        processes.append(process)
-    
-    # 观察调度过程
-    time.sleep(10)
-    system.shutdown()
+def allocate_memory(self, size: int, pid: int) -> Optional[int]:
+    """分配内存"""
+    # TODO: 实现内存分配逻辑
+    pass
+
+def free_memory(self, address: int, pid: int) -> bool:
+    """释放内存"""
+    # TODO: 实现内存释放逻辑
+    pass
 ```
 
-### 第三课: 实现内存管理
-
-#### 3.1 当前状态
-- 基础内存分配已完成
-- 需要实现虚拟内存和分页
-
-#### 3.2 实现任务
-
-**任务1: 实现虚拟内存**
+**验证方法**:
 ```python
-# 在 memory/virtual_memory.py 中实现
-class VirtualMemory:
-    def __init__(self, physical_memory_size: int, page_size: int = 4096):
-        self.physical_memory_size = physical_memory_size
-        self.page_size = page_size
-        self.page_frames = []
-        self.page_tables = {}  # 进程页表
+def test_memory_allocation():
+    allocator = MemoryAllocator(1024 * 1024)  # 1MB内存
     
-    def allocate_pages(self, pid: int, num_pages: int) -> bool:
-        # TODO: 为进程分配虚拟页面
-        pass
+    # 分配内存
+    addr1 = allocator.allocate_memory(1024, 1)
+    addr2 = allocator.allocate_memory(2048, 1)
     
-    def access_memory(self, pid: int, virtual_address: int) -> bool:
-        # TODO: 处理内存访问，可能触发缺页中断
-        pass
+    print(f"Allocated addresses: {addr1}, {addr2}")
+    
+    # 释放内存
+    allocator.free_memory(addr1, 1)
+    
+    # 查看内存使用情况
+    print(f"Memory usage: {allocator.get_memory_usage()}")
 ```
 
-**任务2: 实现页面置换算法**
-```python
-# 在 memory/page_replacement.py 中实现
-class PageReplacement:
-    def __init__(self, algorithm: str = "LRU"):
-        self.algorithm = algorithm
-        self.page_frames = []
-        self.page_faults = 0
-    
-    def handle_page_fault(self, page_number: int) -> int:
-        # TODO: 实现页面置换
-        if self.algorithm == "LRU":
-            return self._lru_replacement(page_number)
-        elif self.algorithm == "FIFO":
-            return self._fifo_replacement(page_number)
-        # 添加更多算法...
-    
-    def _lru_replacement(self, page_number: int) -> int:
-        # TODO: 实现LRU算法
-        pass
+**预期输出**:
+```
+Allocated addresses: 0, 1024
+Memory usage: 3072/1048576 bytes (0.3%)
 ```
 
-#### 3.3 验证方法
-```python
-def test_memory_management():
-    # 创建虚拟内存系统
-    vm = VirtualMemory(1024 * 1024)  # 1MB物理内存
-    
-    # 模拟进程内存访问
-    vm.allocate_pages(1, 10)  # 进程1分配10页
-    
-    # 模拟内存访问序列
-    access_sequence = [0, 1, 2, 3, 2, 1, 4, 5, 6, 7, 8, 9, 0, 1]
-    for addr in access_sequence:
-        vm.access_memory(1, addr * 4096)
-    
-    print(f"页面置换次数: {vm.page_replacement.page_faults}")
+#### 3.3 实现内存管理命令
+**任务**: 在Shell中实现内存管理命令。
+
+**需要实现的命令**:
+- `meminfo` - 显示内存使用情况
+- `malloc <size>` - 分配内存
+- `free <address>` - 释放内存
+
+**验证方法**:
+```bash
+PyOS:/> meminfo
+Memory Usage: 1024/1048576 bytes (0.1%)
+Free Memory: 1047552 bytes
+Fragmentation: 0%
+
+PyOS:/> malloc 1024
+Allocated 1024 bytes at address 0x1000
+
+PyOS:/> meminfo
+Memory Usage: 2048/1048576 bytes (0.2%)
+Free Memory: 1046528 bytes
+Fragmentation: 0%
 ```
 
-### 第四课: 实现文件系统
+### 阶段4: 文件系统实现 (第6-7天)
 
-#### 4.1 实现任务
+#### 4.1 理解文件系统框架
+**学习目标**: 理解文件系统的基本概念，包括目录结构、文件操作等。
 
-**任务1: 实现基本文件操作**
+**关键文件**:
+- `filesystem/file_system.py` - 文件系统核心
+- `filesystem/directory.py` - 目录管理
+- `filesystem/file_operations.py` - 文件操作
+
+#### 4.2 实现基本文件操作
+**任务**: 实现文件的创建、读取、写入和删除功能。
+
+**实现位置**: `filesystem/file_operations.py`
+
+**关键方法**:
 ```python
-# 在 filesystem/file_system.py 中实现
-class FileSystem:
-    def __init__(self):
-        self.root_directory = Directory("/")
-        self.current_directory = self.root_directory
-        self.open_files = {}
-    
-    def create_file(self, path: str, content: str = "") -> bool:
-        # TODO: 创建文件
-        pass
-    
-    def read_file(self, path: str) -> str:
-        # TODO: 读取文件内容
-        pass
-    
-    def write_file(self, path: str, content: str) -> bool:
-        # TODO: 写入文件内容
-        pass
-    
-    def delete_file(self, path: str) -> bool:
-        # TODO: 删除文件
-        pass
+def create_file(self, path: str, content: str = "") -> bool:
+    """创建文件"""
+    # TODO: 实现文件创建逻辑
+    pass
+
+def read_file(self, path: str) -> Optional[str]:
+    """读取文件"""
+    # TODO: 实现文件读取逻辑
+    pass
+
+def write_file(self, path: str, content: str) -> bool:
+    """写入文件"""
+    # TODO: 实现文件写入逻辑
+    pass
 ```
 
-**任务2: 实现目录结构**
+**验证方法**:
 ```python
-# 在 filesystem/directory.py 中实现
-class Directory:
-    def __init__(self, name: str, parent=None):
-        self.name = name
-        self.parent = parent
-        self.children = {}  # 子文件和目录
-        self.created_time = time.time()
-    
-    def add_file(self, name: str, content: str = ""):
-        # TODO: 添加文件到目录
-        pass
-    
-    def add_directory(self, name: str):
-        # TODO: 添加子目录
-        pass
-    
-    def remove_item(self, name: str) -> bool:
-        # TODO: 删除文件或目录
-        pass
-```
-
-#### 4.2 验证方法
-```python
-def test_file_system():
+def test_file_operations():
     fs = FileSystem()
     
-    # 创建文件和目录
+    # 创建文件
     fs.create_file("/test.txt", "Hello, PyOS!")
-    fs.create_file("/documents/readme.txt", "This is a readme file")
     
     # 读取文件
     content = fs.read_file("/test.txt")
     print(f"File content: {content}")
     
-    # 列出目录内容
-    fs.list_directory("/")
+    # 写入文件
+    fs.write_file("/test.txt", "Updated content")
+    
+    # 列出目录
+    files = fs.list_directory("/")
+    print(f"Files in root: {files}")
 ```
 
-### 第五课: 实现Shell和命令系统
-
-#### 5.1 实现任务
-
-**任务1: 实现基本Shell**
-```python
-# 在 shell/shell.py 中实现
-class Shell:
-    def __init__(self, system: System):
-        self.system = system
-        self.running = False
-        self.current_directory = "/"
-        self.command_history = []
-    
-    def run(self):
-        # TODO: 实现Shell主循环
-        self.running = True
-        while self.running:
-            try:
-                command = input(f"PyOS:{self.current_directory}> ")
-                self.execute_command(command)
-            except KeyboardInterrupt:
-                print("\nExiting...")
-                break
-            except Exception as e:
-                print(f"Error: {e}")
-    
-    def execute_command(self, command: str):
-        # TODO: 解析和执行命令
-        pass
+**预期输出**:
+```
+File content: Hello, PyOS!
+Files in root: ['test.txt']
 ```
 
-**任务2: 实现基本命令**
-```python
-# 在 shell/commands.py 中实现
-class Commands:
-    def __init__(self, shell: Shell):
-        self.shell = shell
-    
-    def ls(self, args: list):
-        # TODO: 列出文件和目录
-        pass
-    
-    def cd(self, args: list):
-        # TODO: 切换目录
-        pass
-    
-    def mkdir(self, args: list):
-        # TODO: 创建目录
-        pass
-    
-    def rm(self, args: list):
-        # TODO: 删除文件或目录
-        pass
-    
-    def cat(self, args: list):
-        # TODO: 显示文件内容
-        pass
-    
-    def echo(self, args: list):
-        # TODO: 输出文本
-        pass
-    
-    def ps(self, args: list):
-        # TODO: 显示进程信息
-        pass
-```
+#### 4.3 实现文件系统命令
+**任务**: 在Shell中实现文件系统命令。
 
-#### 5.2 验证方法
+**需要实现的命令**:
+- `ls` - 列出文件和目录
+- `cat <file>` - 显示文件内容
+- `mkdir <dir>` - 创建目录
+- `rm <file>` - 删除文件
+- `cd <dir>` - 切换目录
+
+**验证方法**:
 ```bash
-# 启动系统后，测试以下命令：
 PyOS:/> ls
-PyOS:/> mkdir test
-PyOS:/> cd test
-PyOS:/test> echo "Hello World" > hello.txt
-PyOS:/test> cat hello.txt
-PyOS:/test> ps
-PyOS:/test> cd ..
-PyOS:/> rm -r test
+total 0
+drwxr-xr-x  .    4096 2025-06-21 00:00
+drwxr-xr-x  ..   4096 2025-06-21 00:00
+
+PyOS:/> mkdir testdir
+PyOS:/> cd testdir
+PyOS:/testdir> echo "Hello World" > hello.txt
+PyOS:/testdir> ls
+total 1
+-rw-r--r--  hello.txt   12 2025-06-21 00:01
+
+PyOS:/testdir> cat hello.txt
+Hello World
+
+PyOS:/testdir> cd ..
+PyOS:/> rm testdir/hello.txt
+PyOS:/> rmdir testdir
 ```
+
+### 阶段5: 高级功能实现 (第8-10天)
+
+#### 5.1 实现进程间通信
+**学习目标**: 理解进程间通信的基本概念。
+
+**任务**: 实现简单的进程间通信机制。
+
+**实现位置**: 新建 `process/ipc.py`
+
+**关键功能**:
+- 管道通信
+- 共享内存
+- 信号机制
+
+#### 5.2 实现高级调度算法
+**学习目标**: 理解不同调度算法的特点。
+
+**任务**: 实现优先级调度和多级反馈队列调度。
+
+**实现位置**: `kernel/scheduler.py`
+
+**需要实现的算法**:
+- 优先级调度
+- 多级反馈队列调度
+- 最短作业优先调度
+
+#### 5.3 实现系统监控
+**学习目标**: 理解系统监控和性能分析。
+
+**任务**: 实现系统状态监控功能。
+
+**需要实现的命令**:
+- `top` - 显示系统状态
+- `uptime` - 显示系统运行时间
+- `ps aux` - 显示详细进程信息
 
 ## 🔧 开发指南
 
@@ -458,55 +487,69 @@ PyOS:/> rm -r test
 3. **类型提示**: 使用类型提示提高代码可读性
 4. **异常处理**: 适当处理异常，记录错误日志
 
-### 测试方法
-1. **单元测试**: 为每个模块编写单元测试
-2. **集成测试**: 测试模块间的交互
-3. **功能测试**: 测试完整的功能流程
-
 ### 调试技巧
 1. **日志输出**: 使用Logger记录关键信息
 2. **状态打印**: 定期打印系统状态
 3. **断点调试**: 使用pdb进行调试
 
-## 📝 作业和挑战
+### 测试方法
+1. **单元测试**: 为每个模块编写单元测试
+2. **集成测试**: 测试模块间的交互
+3. **功能测试**: 测试完整的功能流程
 
-### 基础作业
-1. 实现优先级调度算法
-2. 实现LRU页面置换算法
-3. 实现基本的文件操作
-4. 实现ls、cd、mkdir等命令
+## 📝 学习检查清单
 
-### 进阶挑战
-1. 实现进程间通信（管道、信号）
-2. 实现多级反馈队列调度
-3. 实现文件系统权限管理
-4. 实现Shell的管道和重定向功能
-5. 实现简单的设备驱动程序
+### 阶段1检查清单
+- [ ] 解决Shell循环导入问题
+- [ ] 实现基础Shell命令 (help, version, echo, clear)
+- [ ] 验证系统能正常启动Shell界面
 
-### 扩展项目
-1. 添加图形用户界面
-2. 实现网络功能
-3. 添加安全机制
-4. 实现多用户支持
+### 阶段2检查清单
+- [ ] 理解进程管理框架
+- [ ] 实现进程创建和启动功能
+- [ ] 实现进程管理命令 (ps, kill, sleep)
+- [ ] 验证进程调度正常工作
 
-## 🤝 贡献指南
+### 阶段3检查清单
+- [ ] 理解内存管理框架
+- [ ] 实现基本内存分配和释放
+- [ ] 实现内存管理命令 (meminfo, malloc, free)
+- [ ] 验证内存管理正常工作
 
-欢迎提交Issue和Pull Request来改进这个项目！
+### 阶段4检查清单
+- [ ] 理解文件系统框架
+- [ ] 实现基本文件操作 (创建、读取、写入、删除)
+- [ ] 实现文件系统命令 (ls, cat, mkdir, rm, cd)
+- [ ] 验证文件系统正常工作
 
-### 提交规范
-- 提交信息要清晰描述改动
-- 代码要经过测试
-- 添加必要的文档
+### 阶段5检查清单
+- [ ] 实现进程间通信
+- [ ] 实现高级调度算法
+- [ ] 实现系统监控功能
+- [ ] 完成项目演示
+
+## 🎯 预期学习成果
+
+完成这个项目后，你将能够：
+
+1. **理解操作系统核心概念**: 进程、内存、文件系统、设备管理
+2. **掌握系统编程技能**: 多线程编程、内存管理、文件操作
+3. **学会模块化设计**: 如何设计可扩展的系统架构
+4. **提高调试能力**: 通过日志和状态监控调试复杂系统
+5. **增强算法理解**: 调度算法、内存分配算法等
+
+## 🤝 获取帮助
+
+如果在学习过程中遇到问题：
+
+1. **查看日志**: 系统会输出详细的日志信息
+2. **阅读代码**: 每个模块都有详细的注释
+3. **分步调试**: 按照学习路径逐步实现功能
+4. **参考文档**: 查看相关操作系统的文档
 
 ## 📄 许可证
 
 MIT License
-
-## 📞 联系方式
-
-如有问题或建议，请通过以下方式联系：
-- 提交Issue
-- 发送邮件 KyleChen97@icloud.com
 
 ---
 

@@ -3,14 +3,16 @@
 """
 
 import threading
-from typing import Dict, List, Optional, Callable
+from typing import Dict, List, Optional, Callable, TYPE_CHECKING
 from collections import defaultdict
 
 from .process import Process
 from .process_table import ProcessTable
-from kernel.scheduler import Scheduler
-from kernel.memory_manager import MemoryManager
 from utils.logger import Logger
+
+if TYPE_CHECKING:
+    from kernel.scheduler import Scheduler
+    from kernel.memory_manager import MemoryManager
 
 class ProcessManager:
     """进程管理器"""
@@ -19,8 +21,8 @@ class ProcessManager:
         """初始化进程管理器"""
         self.logger = Logger()
         self.process_table = ProcessTable()
-        self.scheduler: Optional[Scheduler] = None
-        self.memory_manager: Optional[MemoryManager] = None
+        self.scheduler: Optional['Scheduler'] = None
+        self.memory_manager: Optional['MemoryManager'] = None
         self.lock = threading.Lock()
         
         # 进程统计
@@ -30,8 +32,11 @@ class ProcessManager:
             'current_active': 0
         }
     
-    def initialize(self, scheduler: Scheduler, memory_manager: MemoryManager):
+    def initialize(self, scheduler, memory_manager):
         """初始化进程管理器"""
+        # 延迟导入，避免循环依赖
+        # from kernel.scheduler import Scheduler
+        # from kernel.memory_manager import MemoryManager
         self.scheduler = scheduler
         self.memory_manager = memory_manager
         self.logger.info("进程管理器初始化完成")

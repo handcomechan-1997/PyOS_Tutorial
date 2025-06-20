@@ -7,13 +7,12 @@ import time
 from typing import List, Optional
 from colorama import Fore, Back, Style
 
-from .shell import Shell
 from utils.logger import Logger
 
 class Commands:
     """Shell命令处理器"""
     
-    def __init__(self, shell: Shell):
+    def __init__(self, shell: 'Shell'):
         """初始化命令处理器"""
         self.shell = shell
         self.logger = Logger()
