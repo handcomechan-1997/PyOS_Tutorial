@@ -1,0 +1,39 @@
+# Python常用忽略项
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+*.log
+*.sqlite3
+
+# 虚拟环境
+.venv/
+venv/
+ENV/
+
+# IDE/编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# 单元测试/覆盖率
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# 项目日志和临时文件
+logs/
+*.tmp
+*.bak
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# 本项目特有
+# （如有其他自动生成的缓存、模拟磁盘文件等，可在此补充） 

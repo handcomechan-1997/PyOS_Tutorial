@@ -1,0 +1,8 @@
+# Python简单操作系统依赖包
+# 核心依赖
+colorama>=0.4.6
+psutil>=5.9.0
+
+# 可选依赖（用于增强功能）
+# curses (在Windows上可能需要windows-curses)
+# windows-curses>=2.3.1; sys_platform == "win32" 
