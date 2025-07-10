@@ -21,7 +21,7 @@ def main():
     print(f"{Fore.CYAN}{'='*50}")
     print(f"{Fore.CYAN}    Python简单操作系统 (PyOS)")
     print(f"{Fore.CYAN}    版本: 1.0.0")
-    print(f"{Fore.CYAN}    作者: 学习项目")
+    print(f"{Fore.CYAN}    作者: HandsomeChen")
     print(f"{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
     
     # 初始化日志系统

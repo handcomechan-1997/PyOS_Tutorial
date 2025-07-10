@@ -69,6 +69,19 @@ class ProcessManager:
             self.logger.log_process_event(process.pid, f"created by process manager - {name}")
             return process
     
+    def start_process(self, pid: int) -> bool:
+        """启动进程"""
+        with self.lock:
+            process = self.process_table.get_process(pid)
+            if not process:
+                self.logger.warning(f"进程不存在: {pid}")
+                return False
+            
+            # 启动进程
+            process.execute(1)
+            self.logger.log_process_event(pid, "started by process manager")
+            return True
+    
     def terminate_process(self, pid: int) -> bool:
         """终止进程"""
         with self.lock:

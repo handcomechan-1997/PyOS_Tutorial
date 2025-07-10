@@ -79,89 +79,65 @@ python main.py
 ==================================================
     Python简单操作系统 (PyOS)
     版本: 1.0.0
-    作者: 学习项目
+    作者: HandsomeChen
 ==================================================
-2025-06-21 00:14:52 - PyOS - INFO - PyOS系统启动中...
-2025-06-21 00:14:52 - PyOS - INFO - 注册系统调用: getpid
-2025-06-21 00:14:52 - PyOS - INFO - 注册系统调用: time
-2025-06-21 00:14:52 - PyOS - INFO - 注册系统调用: sleep
-2025-06-21 00:14:52 - PyOS - INFO - 文件系统初始化
-2025-06-21 00:14:52 - device.device_manager - INFO - Device Manager initialized
-2025-06-21 00:14:52 - PyOS - INFO - 系统核心初始化完成
-2025-06-21 00:14:52 - PyOS - INFO - 系统启动中...
-2025-06-21 00:14:52 - PyOS - INFO - 文件系统初始化完成
-2025-06-21 00:14:52 - device.device_manager - INFO - Initializing Device Manager...
-2025-06-21 00:14:52 - device.device_manager - INFO - Device terminal_0 (System Terminal) registered
-2025-06-21 00:14:52 - device.device_manager - INFO - Device keyboard_0 (System Keyboard) registered
-2025-06-21 00:14:52 - device.device_manager - INFO - Device display_0 (System Display) registered
-2025-06-21 00:14:52 - device.terminal - INFO - Terminal terminal_0 initialized
-2025-06-21 00:14:52 - PyOS - INFO - 进程管理器初始化完成
-2025-06-21 00:14:52 - PyOS - INFO - 进程调度器启动
-2025-06-21 00:14:52 - PyOS - INFO - 所有子系统初始化完成
-2025-06-21 00:14:52 - PyOS - INFO - 系统启动完成
+2025-07-10 19:49:49 - PyOS - INFO - PyOS系统启动中...
+2025-07-10 19:49:49 - PyOS - INFO - 注册系统调用: getpid
+2025-07-10 19:49:49 - PyOS - INFO - 注册系统调用: time
+2025-07-10 19:49:49 - PyOS - INFO - 注册系统调用: sleep
+2025-07-10 19:49:49 - PyOS - INFO - 文件系统初始化
+2025-07-10 19:49:49 - device.device_manager - INFO - Device Manager initialized
+2025-07-10 19:49:49 - PyOS - INFO - 系统核心初始化完成
+2025-07-10 19:49:49 - PyOS - INFO - 系统启动中...
+2025-07-10 19:49:49 - PyOS - INFO - 文件系统初始化完成
+2025-07-10 19:49:49 - device.device_manager - INFO - Initializing Device Manager...
+2025-07-10 19:49:49 - device.device_manager - INFO - Device terminal_0 (System Terminal) registered
+2025-07-10 19:49:49 - device.device_manager - INFO - Device keyboard_0 (System Keyboard) registered
+2025-07-10 19:49:49 - device.device_manager - INFO - Device display_0 (System Display) registered
+2025-07-10 19:49:49 - device.terminal - INFO - Terminal terminal_0 initialized
+2025-07-10 19:49:49 - PyOS - INFO - 进程管理器初始化完成
+2025-07-10 19:49:49 - PyOS - INFO - 进程调度器启动
+2025-07-10 19:49:49 - PyOS - INFO - 所有子系统初始化完成
+2025-07-10 19:49:49 - PyOS - INFO - 系统启动完成
 系统启动成功！
-
-系统错误: cannot import name 'Shell' from partially initialized module 'shell.shell' (most likely due to a circular import)
-```
-
-**注意**: 当前Shell模块存在循环导入问题，这是第一个需要解决的问题。
-
-## 📚 详细学习路径
-
-### 阶段1: 解决基础问题 (第1天)
-
-#### 1.1 解决Shell循环导入问题
-**问题**: Shell模块存在循环导入，导致系统无法启动Shell界面。
-
-**学习目标**: 理解Python模块导入机制和循环导入的解决方法。
-
-**任务**:
-1. 分析 `shell/shell.py` 和 `shell/commands.py` 的导入关系
-2. 使用类型提示字符串或延迟导入解决循环导入
-3. 验证系统能正常启动Shell
-
-**实现步骤**:
-```python
-# 在 shell/commands.py 中，将
-from .shell import Shell
-
-# 改为
-# 删除这行导入，使用字符串类型提示
-def __init__(self, shell: 'Shell'):
-```
-
-**验证方法**:
-```bash
-python main.py
-# 应该看到Shell界面启动，而不是循环导入错误
-```
-
-**预期输出**:
-```
 欢迎使用PyOS Shell!
 输入 'help' 查看可用命令，输入 'exit' 退出系统
 
 PyOS:/>
 ```
 
+## 📚 详细学习路径
+
+### 阶段1: 基础功能完善 (第1天)
+
+#### 1.1 熟悉系统架构
+**学习目标**: 理解PyOS的整体架构和各模块的职责。
+
+**任务**:
+1. 阅读系统核心代码，理解启动流程
+2. 了解各个模块的基本功能
+3. 运行系统，体验基本的Shell交互
+
+**验证方法**:
+```bash
+python main.py
+PyOS:/> help
+PyOS:/> version
+PyOS:/> echo "Hello PyOS!"
+PyOS:/> info
+```
+
 #### 1.2 实现基础Shell命令
 **学习目标**: 理解命令解析和执行流程。
 
-**任务**: 实现以下基础命令：
+**任务**: 完善以下基础命令：
 - `help` - 显示帮助信息
 - `version` - 显示系统版本
 - `echo` - 输出文本
 - `clear` - 清屏
+- `info` - 显示系统信息
 
 **实现位置**: `shell/commands.py`
-
-**验证方法**:
-```bash
-PyOS:/> help
-PyOS:/> version
-PyOS:/> echo "Hello World"
-PyOS:/> clear
-```
 
 **预期输出**:
 ```
@@ -172,6 +148,7 @@ PyOS Shell 帮助
   version         - 显示系统版本
   echo <文本>     - 输出文本
   clear           - 清屏
+  info            - 显示系统信息
   exit            - 退出系统
 
 PyOS:/> version
@@ -500,8 +477,8 @@ PyOS:/> rmdir testdir
 ## 📝 学习检查清单
 
 ### 阶段1检查清单
-- [ ] 解决Shell循环导入问题
-- [ ] 实现基础Shell命令 (help, version, echo, clear)
+- [ ] 熟悉系统架构和各模块功能
+- [ ] 完善基础Shell命令 (help, version, echo, clear, info)
 - [ ] 验证系统能正常启动Shell界面
 
 ### 阶段2检查清单

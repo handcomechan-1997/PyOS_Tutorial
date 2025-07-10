@@ -18,6 +18,7 @@ class Shell:
         """初始化Shell"""
         self.system = system
         self.running = False
+        # 使用虚拟路径系统，从根目录开始
         self.current_directory = "/"
         self.command_history: List[str] = []
         self.history_index = 0
@@ -30,13 +31,15 @@ class Shell:
         # 环境变量
         self.environment: Dict[str, str] = {
             'PATH': '/bin:/usr/bin',
-            'HOME': '/home',
-            'USER': 'user',
-            'SHELL': '/bin/pyos'
+            'HOME': '/home/user',  # 虚拟用户主目录
+            'USER': 'user',  # 虚拟用户名
+            'SHELL': '/bin/pyos',
+            'PWD': '/'  # 虚拟当前工作目录
         }
         
         self.logger = Logger()
         self.logger.info("Shell初始化完成")
+        self.logger.info(f"虚拟当前目录: {self.current_directory}")
     
     def run(self):
         """运行Shell"""
@@ -147,14 +150,31 @@ class Shell:
     
     def change_directory(self, path: str) -> bool:
         """切换当前目录"""
-        # TODO: 实现目录切换
-        # 1. 验证路径是否存在
-        # 2. 更新当前目录
-        # 3. 更新环境变量PWD
+        # 解析路径
+        if path.startswith("/"):
+            # 绝对路径
+            target_path = path
+        else:
+            # 相对路径，使用虚拟文件系统的路径解析
+            target_path = self.system.vfs.get_absolute_path(self.current_directory, path)
+        
+        # 规范化路径
+        target_path = self.system.vfs._normalize_path(target_path)
+        
+        # 验证目录是否存在
+        if not self.system.vfs.exists(target_path):
+            self.logger.error(f"目录不存在: {target_path}")
+            return False
+            
+        if not self.system.vfs.is_directory(target_path):
+            self.logger.error(f"不是目录: {target_path}")
+            return False
+        
+        # 更新当前目录
         old_dir = self.current_directory
-        self.current_directory = path
-        self.set_environment('PWD', path)
-        self.logger.info(f"切换目录: {old_dir} -> {path}")
+        self.current_directory = target_path
+        self.set_environment('PWD', target_path)
+        self.logger.info(f"切换目录: {old_dir} -> {target_path}")
         return True
     
     def get_current_directory(self) -> str:
@@ -190,6 +210,8 @@ class Shell:
         print("  rm <文件>       - 删除文件")
         print("  cat <文件>      - 显示文件内容")
         print("  echo <文本>     - 输出文本")
+        print("  touch <文件>    - 创建空文件")
+        print("  tree [目录]     - 显示目录树")
         print("  ps              - 显示进程信息")
         print("  kill <PID>      - 终止进程")
         print("  clear           - 清屏")
@@ -198,10 +220,15 @@ class Shell:
         print()
         print("系统命令:")
         print("  info            - 显示系统信息")
+        print("  vfs_info        - 显示虚拟文件系统信息")
         print("  history         - 显示命令历史")
         print("  env             - 显示环境变量")
+        print("  version         - 显示版本信息")
         print()
         print("示例:")
         print("  ls -la          - 详细列出文件")
-        print("  echo hello > file.txt  - 重定向输出")
-        print("  ps | grep python       - 管道操作") 
+        print("  echo hello > file.txt  - 重定向输出到文件")
+        print("  tree -d 2       - 显示深度为2的目录树")
+        print("  cd /home/user   - 切换到用户目录")
+        print()
+        print(f"{Fore.YELLOW}注意: 这是一个虚拟文件系统，与真实文件系统隔离{Style.RESET_ALL}") 

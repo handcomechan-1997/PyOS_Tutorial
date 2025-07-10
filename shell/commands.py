@@ -4,10 +4,13 @@
 
 import os
 import time
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 from colorama import Fore, Back, Style
 
 from utils.logger import Logger
+
+if TYPE_CHECKING:
+    from .shell import Shell
 
 class Commands:
     """Shell命令处理器"""
@@ -19,28 +22,89 @@ class Commands:
     
     def ls(self, args: List[str]) -> str:
         """列出文件和目录"""
-        # TODO: 实现ls命令
-        # 1. 解析参数 (-l, -a, -la等)
-        # 2. 获取目录内容
-        # 3. 格式化输出
-        print(f"{Fore.BLUE}ls{Style.RESET_ALL} 命令 - 参数: {args}")
-        print("文件列表功能待实现...")
-        return ""
+        # 解析参数
+        show_hidden = '-a' in args or '-la' in args or '-al' in args
+        show_details = '-l' in args or '-la' in args or '-al' in args
+        
+        # 获取目标目录
+        target_dir = self.shell.current_directory
+        for arg in args:
+            if not arg.startswith('-'):
+                if arg.startswith("/"):
+                    target_dir = arg
+                else:
+                    target_dir = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, arg)
+                break
+        
+        try:
+            # 检查目录是否存在
+            if not self.shell.system.vfs.exists(target_dir):
+                print(f"{Fore.RED}错误: 目录 '{target_dir}' 不存在{Style.RESET_ALL}")
+                return ''
+            
+            if not self.shell.system.vfs.is_directory(target_dir):
+                print(f"{Fore.RED}错误: '{target_dir}' 不是一个目录{Style.RESET_ALL}")
+                return ''
+            
+            # 获取目录内容
+            entries = self.shell.system.vfs.list_directory(target_dir)
+            
+            # 过滤隐藏文件
+            if not show_hidden:
+                entries = [e for e in entries if not e['name'].startswith('.')]
+                
+            if show_details:
+                # 详细模式
+                output = []
+                for entry in entries:
+                    # 格式化权限
+                    perms = entry['permissions']
+                    file_type = 'd' if entry['type'] == 'directory' else '-'
+                    
+                    # 格式化大小和修改时间
+                    size = entry['size']
+                    mtime = time.strftime('%Y-%m-%d %H:%M', time.localtime(entry['modified_time']))
+                    
+                    # 格式化输出
+                    color = Fore.BLUE if entry['type'] == 'directory' else Style.RESET_ALL
+                    output.append(f"{file_type}rw-r--r--  {size:8d}  {mtime}  {color}{entry['name']}{Style.RESET_ALL}")
+                    
+                print('\n'.join(output))
+            else:
+                # 简单模式
+                for entry in entries:
+                    color = Fore.BLUE if entry['type'] == 'directory' else Style.RESET_ALL
+                    print(f"{color}{entry['name']}{Style.RESET_ALL}", end='  ')
+                print()
+                
+            return ''
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            return ''
     
     def cd(self, args: List[str]) -> str:
         """切换目录"""
         if not args:
             # 切换到用户主目录
             home = self.shell.get_environment('HOME')
-            return self.shell.change_directory(home)
+            target_path = home
+        else:
+            target_path = args[0]
         
-        path = args[0]
-        # TODO: 实现目录切换逻辑
-        # 1. 解析路径（相对/绝对）
-        # 2. 验证目录是否存在
-        # 3. 更新当前目录
-        print(f"{Fore.BLUE}cd{Style.RESET_ALL} 命令 - 切换到: {path}")
-        return self.shell.change_directory(path)
+        try:
+            # 使用Shell的change_directory方法
+            result = self.shell.change_directory(target_path)
+            if result:
+                print(f"{Fore.GREEN}已切换到: {self.shell.current_directory}{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}错误: 目录 '{target_path}' 不存在{Style.RESET_ALL}")
+            return ''
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            self.logger.error(f"cd命令异常: {str(e)}")
+            return ''
     
     def pwd(self, args: List[str]) -> str:
         """显示当前目录"""
@@ -55,12 +119,25 @@ class Commands:
             return ""
         
         dir_name = args[0]
-        # TODO: 实现目录创建
-        # 1. 检查目录是否已存在
-        # 2. 创建目录
-        # 3. 更新文件系统
-        print(f"{Fore.BLUE}mkdir{Style.RESET_ALL} 命令 - 创建目录: {dir_name}")
-        return ""
+        
+        # 解析路径
+        if dir_name.startswith("/"):
+            dir_path = dir_name
+        else:
+            dir_path = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, dir_name)
+        
+        try:
+            # 创建目录
+            result = self.shell.system.vfs.create_directory(dir_path)
+            if result:
+                print(f"{Fore.GREEN}已创建目录: {dir_path}{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}错误: 无法创建目录 '{dir_path}'{Style.RESET_ALL}")
+            return ""
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            return ""
     
     def rm(self, args: List[str]) -> str:
         """删除文件或目录"""
@@ -71,12 +148,37 @@ class Commands:
         target = args[0]
         recursive = '-r' in args or '-R' in args
         
-        # TODO: 实现删除功能
-        # 1. 检查文件/目录是否存在
-        # 2. 检查权限
-        # 3. 执行删除
-        print(f"{Fore.BLUE}rm{Style.RESET_ALL} 命令 - 删除: {target} {'(递归)' if recursive else ''}")
-        return ""
+        # 解析路径
+        if target.startswith("/"):
+            target_path = target
+        else:
+            target_path = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, target)
+        
+        try:
+            # 检查是否存在
+            if not self.shell.system.vfs.exists(target_path):
+                print(f"{Fore.RED}错误: '{target}' 不存在{Style.RESET_ALL}")
+                return ""
+            
+            # 删除文件或目录
+            if self.shell.system.vfs.is_file(target_path):
+                result = self.shell.system.vfs.delete_file(target_path)
+                if result:
+                    print(f"{Fore.GREEN}已删除文件: {target_path}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}错误: 无法删除文件 '{target_path}'{Style.RESET_ALL}")
+            elif self.shell.system.vfs.is_directory(target_path):
+                result = self.shell.system.vfs.delete_directory(target_path, recursive)
+                if result:
+                    print(f"{Fore.GREEN}已删除目录: {target_path}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}错误: 无法删除目录 '{target_path}' (可能不为空，使用 -r 递归删除){Style.RESET_ALL}")
+            
+            return ""
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            return ""
     
     def cat(self, args: List[str]) -> str:
         """显示文件内容"""
@@ -85,18 +187,95 @@ class Commands:
             return ""
         
         filename = args[0]
-        # TODO: 实现文件读取
-        # 1. 检查文件是否存在
-        # 2. 读取文件内容
-        # 3. 显示内容
-        print(f"{Fore.BLUE}cat{Style.RESET_ALL} 命令 - 显示文件: {filename}")
-        print("文件内容功能待实现...")
-        return ""
+        
+        # 解析路径
+        if filename.startswith("/"):
+            file_path = filename
+        else:
+            file_path = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, filename)
+        
+        try:
+            # 检查文件是否存在
+            if not self.shell.system.vfs.exists(file_path):
+                print(f"{Fore.RED}错误: 文件 '{filename}' 不存在{Style.RESET_ALL}")
+                return ""
+            
+            if not self.shell.system.vfs.is_file(file_path):
+                print(f"{Fore.RED}错误: '{filename}' 不是文件{Style.RESET_ALL}")
+                return ""
+            
+            # 读取文件内容
+            content = self.shell.system.vfs.read_file(file_path)
+            if content is not None:
+                print(content)
+                return content
+            else:
+                print(f"{Fore.RED}错误: 无法读取文件 '{filename}'{Style.RESET_ALL}")
+                return ""
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            return ""
     
     def echo(self, args: List[str]) -> str:
         """输出文本"""
-        text = " ".join(args) if args else ""
-        print(text)
+        if not args:
+            print()
+            return ""
+        
+        # 检查是否有重定向
+        text_parts = []
+        redirect_file = None
+        append_mode = False
+        
+        i = 0
+        while i < len(args):
+            if args[i] == '>':
+                # 输出重定向
+                if i + 1 < len(args):
+                    redirect_file = args[i + 1]
+                    append_mode = False
+                    break
+            elif args[i] == '>>':
+                # 追加重定向
+                if i + 1 < len(args):
+                    redirect_file = args[i + 1]
+                    append_mode = True
+                    break
+            else:
+                text_parts.append(args[i])
+            i += 1
+        
+        text = " ".join(text_parts)
+        
+        if redirect_file:
+            # 输出重定向到文件
+            if redirect_file.startswith("/"):
+                file_path = redirect_file
+            else:
+                file_path = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, redirect_file)
+            
+            try:
+                if append_mode and self.shell.system.vfs.exists(file_path):
+                    # 追加模式
+                    existing_content = self.shell.system.vfs.read_file(file_path) or ""
+                    new_content = existing_content + text + "\n"
+                else:
+                    # 覆盖模式
+                    new_content = text + "\n"
+                
+                result = self.shell.system.vfs.write_file(file_path, new_content)
+                if result:
+                    print(f"{Fore.GREEN}已将输出写入: {file_path}{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}错误: 无法写入文件 '{redirect_file}'{Style.RESET_ALL}")
+                    
+            except Exception as e:
+                print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+        else:
+            # 直接输出到终端
+            print(text)
+        
         return text
     
     def ps(self, args: List[str]) -> str:
@@ -236,3 +415,96 @@ class Commands:
         # TODO: 实现tail功能
         print(f"{Fore.BLUE}tail{Style.RESET_ALL} 命令 - 显示文件 '{filename}' 的后 {lines} 行")
         return "" 
+    
+    def version(self, args: List[str]) -> str:
+        """显示版本信息"""
+        print(f"{Fore.CYAN}PyOS 版本 1.0.0{Style.RESET_ALL}")
+        print("一个用Python实现的简单操作系统模拟器")
+        return "PyOS 1.0.0"
+    
+    def tree(self, args: List[str]) -> str:
+        """显示目录树"""
+        # 解析参数
+        max_depth = 3
+        target_dir = self.shell.current_directory
+        
+        for i, arg in enumerate(args):
+            if arg == '-d' and i + 1 < len(args):
+                try:
+                    max_depth = int(args[i + 1])
+                except ValueError:
+                    print(f"{Fore.RED}错误: 无效的深度值 '{args[i + 1]}'{Style.RESET_ALL}")
+                    return ""
+            elif not arg.startswith('-') and arg.isdigit() == False:
+                if arg.startswith("/"):
+                    target_dir = arg
+                else:
+                    target_dir = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, arg)
+        
+        try:
+            if not self.shell.system.vfs.exists(target_dir):
+                print(f"{Fore.RED}错误: 目录 '{target_dir}' 不存在{Style.RESET_ALL}")
+                return ""
+            
+            if not self.shell.system.vfs.is_directory(target_dir):
+                print(f"{Fore.RED}错误: '{target_dir}' 不是目录{Style.RESET_ALL}")
+                return ""
+            
+            print(f"{Fore.CYAN}目录树: {target_dir}{Style.RESET_ALL}")
+            self.shell.system.vfs.print_tree(target_dir, "", max_depth)
+            return ""
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            return ""
+    
+    def touch(self, args: List[str]) -> str:
+        """创建空文件"""
+        if not args:
+            print(f"{Fore.RED}错误: 请指定文件名{Style.RESET_ALL}")
+            return ""
+        
+        filename = args[0]
+        
+        # 解析路径
+        if filename.startswith("/"):
+            file_path = filename
+        else:
+            file_path = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, filename)
+        
+        try:
+            # 检查文件是否已存在
+            if self.shell.system.vfs.exists(file_path):
+                print(f"{Fore.YELLOW}文件 '{filename}' 已存在{Style.RESET_ALL}")
+                return ""
+            
+            # 创建空文件
+            result = self.shell.system.vfs.create_file(file_path, "")
+            if result:
+                print(f"{Fore.GREEN}已创建文件: {file_path}{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}错误: 无法创建文件 '{filename}'{Style.RESET_ALL}")
+            return ""
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            return ""
+    
+    def vfs_info(self, args: List[str]) -> str:
+        """显示虚拟文件系统信息"""
+        try:
+            stats = self.shell.system.vfs.get_stats()
+            
+            print(f"\n{Fore.CYAN}虚拟文件系统信息:{Style.RESET_ALL}")
+            print("-" * 40)
+            print(f"总文件数: {stats['total_files']}")
+            print(f"总目录数: {stats['total_directories']}")
+            print(f"总大小: {stats['total_size']} bytes")
+            print(f"当前目录: {self.shell.current_directory}")
+            print("-" * 40)
+            
+            return ""
+            
+        except Exception as e:
+            print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            return ""
