@@ -166,6 +166,8 @@ class System:
     def _cleanup(self):
         """清理系统资源"""
         try:
+            self.logger.info("清理系统资源...")
+            
             # 停止调度器
             self.logger.info("停止调度器...")
             self.scheduler.stop()
@@ -178,13 +180,12 @@ class System:
             self.logger.info("清理内存管理器...")
             self.memory_manager.cleanup()
             
-            # 清理文件系统
-            self.logger.info("清理文件系统...")
-            self.file_system.cleanup()
+            # 虚拟文件系统是纯内存实现，不需要特殊清理
+            self.logger.info("虚拟文件系统清理完成（无需操作）")
             
             # 清理设备
             self.logger.info("清理设备管理器...")
-            self.device_manager.cleanup()
+            self.device_manager.shutdown_all_devices()
             
         except Exception as e:
             self.logger.error(f"清理系统资源时出错: {e}")

@@ -88,6 +88,7 @@ class Commands:
         if not args:
             # 切换到用户主目录
             home = self.shell.get_environment('HOME')
+            assert home is not None, "HOME 环境变量未设置"
             target_path = home
         else:
             target_path = args[0]
@@ -359,6 +360,7 @@ class Commands:
     def whoami(self, args: List[str]) -> str:
         """显示当前用户"""
         user = self.shell.get_environment('USER')
+        assert user is not None, "USER 环境变量未设置"
         print(f"{Fore.GREEN}当前用户: {user}{Style.RESET_ALL}")
         return user
     

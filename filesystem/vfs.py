@@ -6,7 +6,6 @@ import time
 import threading
 from typing import Dict, List, Optional, Tuple, Any
 from enum import Enum
-from dataclasses import dataclass
 
 from utils.logger import Logger
 
@@ -15,23 +14,25 @@ class VFSNodeType(Enum):
     FILE = "file"
     DIRECTORY = "directory"
 
-@dataclass
 class VFSNode:
     """文件系统节点"""
-    name: str
-    node_type: VFSNodeType
-    content: str = ""  # 文件内容，目录为空
-    parent: Optional['VFSNode'] = None
-    children: Dict[str, 'VFSNode'] = None
-    size: int = 0
-    permissions: int = 0o644
-    created_time: float = 0.0
-    modified_time: float = 0.0
-    accessed_time: float = 0.0
     
-    def __post_init__(self):
-        if self.children is None:
-            self.children = {}
+    def __init__(self, name: str, node_type: VFSNodeType, content: str = "", 
+                 parent: Optional['VFSNode'] = None, size: int = 0, 
+                 permissions: int = 0o644, created_time: float = 0.0,
+                 modified_time: float = 0.0, accessed_time: float = 0.0):
+        self.name = name
+        self.node_type = node_type
+        self.content = content
+        self.parent = parent
+        self.children: Dict[str, 'VFSNode'] = {}
+        self.size = size
+        self.permissions = permissions
+        self.created_time = created_time
+        self.modified_time = modified_time
+        self.accessed_time = accessed_time
+        
+        # 设置默认时间
         if self.created_time == 0.0:
             self.created_time = time.time()
         if self.modified_time == 0.0:
@@ -400,18 +401,20 @@ class VirtualFileSystem:
                 self.logger.error(f"删除目录失败 {path}: {e}")
                 return False
     
-    def list_directory(self, path: str = "/") -> List[Dict[str, Any]]:
+    def list_directory(self, path: str = "/", silent: bool = True) -> List[Dict[str, Any]]:
         """列出目录内容"""
         with self.lock:
             try:
                 node = self._find_node(path)
                 
                 if node is None:
-                    self.logger.error(f"目录不存在: {path}")
+                    if not silent:
+                        self.logger.error(f"目录不存在: {path}")
                     return []
                 
                 if node.node_type != VFSNodeType.DIRECTORY:
-                    self.logger.error(f"不是目录: {path}")
+                    if not silent:
+                        self.logger.error(f"不是目录: {path}")
                     return []
                 
                 node.accessed_time = time.time()
@@ -431,11 +434,13 @@ class VirtualFileSystem:
                 # 按名称排序
                 entries.sort(key=lambda x: x['name'])
                 
-                self.logger.log_file_event(f"列出目录: {path}")
+                if not silent:
+                    self.logger.log_file_event(f"列出目录: {path}")
                 return entries
                 
             except Exception as e:
-                self.logger.error(f"列出目录失败 {path}: {e}")
+                if not silent:
+                    self.logger.error(f"列出目录失败 {path}: {e}")
                 return []
     
     def get_file_info(self, path: str) -> Optional[Dict[str, Any]]:

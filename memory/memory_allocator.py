@@ -3,7 +3,8 @@
 """
 
 import threading
-from typing import Dict, List, Optional, Tuple
+import time
+from typing import Dict, List, Optional, Tuple, Union
 from enum import Enum
 
 from utils.logger import Logger
@@ -21,10 +22,10 @@ class MemoryBlock:
         self.start_address = start_address
         self.size = size
         self.is_free = is_free
-        self.next_block = None
-        self.prev_block = None
-        self.allocated_time = None
-        self.process_id = None
+        self.next_block: Optional['MemoryBlock'] = None
+        self.prev_block: Optional['MemoryBlock'] = None
+        self.allocated_time: Optional[float] = None
+        self.process_id: Optional[int] = None
 
 class MemoryAllocator:
     """内存分配器"""
@@ -50,7 +51,7 @@ class MemoryAllocator:
         
         self.logger.info(f"内存分配器初始化: {total_memory} bytes, 策略: {strategy.value}")
     
-    def allocate(self, size: int, process_id: int = None) -> Optional[int]:
+    def allocate(self, size: int, process_id: Optional[int] = None) -> Optional[int]:
         """分配内存"""
         with self.lock:
             if size <= 0:
@@ -151,7 +152,7 @@ class MemoryAllocator:
         
         return worst_block
     
-    def _allocate_block(self, block: MemoryBlock, size: int, process_id: int) -> Optional[int]:
+    def _allocate_block(self, block: MemoryBlock, size: int, process_id: Optional[int]) -> Optional[int]:
         """在指定块中分配内存"""
         address = block.start_address
         
@@ -199,7 +200,7 @@ class MemoryAllocator:
             else:
                 current = current.next_block
     
-    def get_memory_stats(self) -> Dict[str, int]:
+    def get_memory_stats(self) -> Dict[str, Union[int, float]]:
         """获取内存统计信息"""
         with self.lock:
             return {
@@ -239,7 +240,4 @@ class MemoryAllocator:
             # 1. 移动已分配的块
             # 2. 合并空闲块
             # 3. 更新地址映射
-            self.logger.info("内存碎片整理功能待实现")
-
-# 导入时间模块
-import time 
+            self.logger.info("内存碎片整理功能待实现") 

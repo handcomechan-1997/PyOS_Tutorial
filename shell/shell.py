@@ -6,6 +6,10 @@ import threading
 from typing import List, Optional, Dict, Any
 from colorama import Fore, Back, Style
 
+import readline
+import inspect
+import os
+
 from kernel.system import System
 from .commands import Commands
 from .parser import CommandParser
@@ -40,6 +44,99 @@ class Shell:
         self.logger = Logger()
         self.logger.info("Shell初始化完成")
         self.logger.info(f"虚拟当前目录: {self.current_directory}")
+        self._init_readline()
+    
+    def _init_readline(self):
+        # 只在主线程/主进程下启用 readline，避免多线程/子进程冲突
+        if threading.current_thread().name != 'MainThread':
+            return
+        try:
+            readline.set_completer(self._complete)
+            readline.parse_and_bind('tab: complete')
+            readline.set_completer_delims(' \t\n"\'`@$><=;|&{(')  # 类似bash
+        except Exception as e:
+            self.logger.error(f"readline初始化失败: {e}")
+
+    def _get_command_list(self):
+        # 获取所有内置命令（公有方法且无下划线）
+        return [name for name, func in inspect.getmembers(self.commands, predicate=callable)
+                if not name.startswith('_') and name not in ('logger', 'shell')]
+
+    def _get_param_list(self, cmd):
+        # 常用命令参数，可扩展
+        param_dict = {
+            'ls': ['-l', '-a', '-la', '-al'],
+            'rm': ['-r', '-f', '-rf'],
+            'cat': [],
+            'cd': [],
+            'mkdir': ['-p'],
+            'tree': ['-d', '-L'],
+            'ps': ['-a', '-l'],
+            'kill': [],
+            'echo': [],
+        }
+        return param_dict.get(cmd, [])
+
+    def _expanduser(self, path):
+        # 支持~展开
+        if path.startswith('~'):
+            home = self.get_environment('HOME') or '/home/user'
+            return path.replace('~', home, 1)
+        return path
+
+    def _complete(self, text, state):
+        buffer = readline.get_line_buffer()
+        line = buffer.lstrip()
+        tokens = line.split()
+        if not tokens or (len(tokens) == 1 and not buffer.endswith(' ')):
+            # 命令补全
+            options = [cmd for cmd in self._get_command_list() if cmd.startswith(text)]
+        else:
+            cmd = tokens[0]
+            cur_arg = tokens[-1] if not buffer.endswith(' ') else ''
+            prev_args = tokens[1:-1] if not buffer.endswith(' ') else tokens[1:]
+            # 参数补全
+            if cur_arg.startswith('-'):
+                options = [p for p in self._get_param_list(cmd) if p.startswith(cur_arg)]
+            # 路径补全
+            else:
+                arg_path = self._expanduser(cur_arg)
+                if not arg_path:
+                    arg_path = '.'
+                dirname = os.path.dirname(arg_path) if os.path.dirname(arg_path) else '.'
+                prefix = os.path.basename(arg_path)
+                abs_dir = self.system.vfs.get_absolute_path(self.current_directory, dirname)
+                # --- 静默调用list_directory ---
+                vfs = self.system.vfs
+                # 临时关闭info日志
+                orig_logger = getattr(vfs, 'logger', None)
+                orig_level = getattr(orig_logger, 'level', None)
+                if orig_logger and hasattr(orig_logger, 'setLevel'):
+                    try:
+                        orig_logger.setLevel('WARNING')
+                        entries = vfs.list_directory(abs_dir)
+                    finally:
+                        orig_logger.setLevel(orig_level or 'INFO')
+                else:
+                    entries = vfs.list_directory(abs_dir)
+                # --- end ---
+                show_hidden = prefix.startswith('.')
+                options = []
+                for entry in entries:
+                    name = entry['name']
+                    if not show_hidden and name.startswith('.'):
+                        continue
+                    if name.startswith(prefix):
+                        suffix = '/' if entry['type'] == 'directory' else ''
+                        full = os.path.join(dirname, name) + suffix
+                        if full.startswith(self.get_environment('HOME') or '/home/user'):
+                            full = '~' + full[len(self.get_environment('HOME') or '/home/user'):]
+                        options.append(full)
+        options = sorted(set(options))
+        try:
+            return options[state]
+        except IndexError:
+            return None
     
     def run(self):
         """运行Shell"""
