@@ -3,6 +3,7 @@
 """
 
 import threading
+import time
 from typing import Dict, List, Optional, Tuple
 from enum import Enum
 
@@ -176,7 +177,4 @@ class VirtualMemory:
             stats = self.get_memory_stats()
             print(f"统计: 总页面 {stats['total_pages']}, 空闲 {stats['free_pages']}, "
                   f"已分配 {stats['allocated_pages']}")
-            print(f"缺页率: {stats['fault_rate']:.2%}")
-
-# 导入时间模块
-import time 
+            print(f"缺页率: {stats['fault_rate']:.2%}") 

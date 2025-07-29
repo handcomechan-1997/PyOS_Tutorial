@@ -21,6 +21,12 @@ class VFSNode:
                  parent: Optional['VFSNode'] = None, size: int = 0, 
                  permissions: int = 0o644, created_time: float = 0.0,
                  modified_time: float = 0.0, accessed_time: float = 0.0):
+        # 参数验证
+        if not name:
+            raise ValueError("节点名称不能为空")
+        if not isinstance(node_type, VFSNodeType):
+            raise ValueError("无效的节点类型")
+        
         self.name = name
         self.node_type = node_type
         self.content = content
@@ -98,8 +104,12 @@ class VirtualFileSystem:
     
     def _normalize_path(self, path: str) -> str:
         """规范化路径"""
+        if not path:
+            return "/"
+        
+        # 处理相对路径
         if not path.startswith("/"):
-            return f"/{path}"
+            path = f"/{path}"
         
         # 处理 . 和 ..
         parts = []
@@ -109,13 +119,15 @@ class VirtualFileSystem:
             elif part == "..":
                 if parts:
                     parts.pop()
+                # 如果已经是根目录，忽略多余的 ..
             else:
                 parts.append(part)
         
+        # 确保根目录返回 "/"
         return "/" + "/".join(parts) if parts else "/"
     
     def _find_node(self, path: str) -> Optional[VFSNode]:
-        """查找节点"""
+        """查找节点（内部方法，不获取锁）"""
         path = self._normalize_path(path)
         
         if path == "/":
@@ -132,7 +144,7 @@ class VirtualFileSystem:
         return current
     
     def _find_parent_node(self, path: str) -> Tuple[Optional[VFSNode], str]:
-        """查找父节点和文件名"""
+        """查找父节点和文件名（内部方法，不获取锁）"""
         path = self._normalize_path(path)
         
         if path == "/":
@@ -232,8 +244,8 @@ class VirtualFileSystem:
         """创建目录"""
         with self.lock:
             try:
-                # 如果目录已存在，返回True
-                if self.exists(path):
+                # 如果目录已存在，返回True（直接使用_find_node，不调用exists）
+                if self._find_node(path) is not None:
                     return True
                 
                 parent, dirname = self._find_parent_node(path)
@@ -260,6 +272,7 @@ class VirtualFileSystem:
                 # 只在非初始化模式下记录详细日志
                 if not self._init_mode:
                     self.logger.log_file_event(f"创建目录: {path}")
+                
                 return True
                 
             except Exception as e:
@@ -269,8 +282,8 @@ class VirtualFileSystem:
     def _create_directory_silent(self, path: str) -> bool:
         """静默创建目录（不记录日志）"""
         try:
-            # 如果目录已存在，返回True
-            if self.exists(path):
+            # 如果目录已存在，返回True（直接使用_find_node，不调用exists）
+            if self._find_node(path) is not None:
                 return True
             
             parent, dirname = self._find_parent_node(path)
@@ -389,6 +402,10 @@ class VirtualFileSystem:
                     self.logger.error(f"目录不为空: {path}")
                     return False
                 
+                # 递归删除子目录和文件
+                if recursive and node.children:
+                    self._recursive_delete(node)
+                
                 parent = node.parent
                 if parent:
                     del parent.children[node.name]
@@ -400,6 +417,16 @@ class VirtualFileSystem:
             except Exception as e:
                 self.logger.error(f"删除目录失败 {path}: {e}")
                 return False
+    
+    def _recursive_delete(self, node: VFSNode):
+        """递归删除节点及其所有子节点"""
+        # 先删除所有子节点
+        for child_name, child_node in list(node.children.items()):
+            if child_node.node_type == VFSNodeType.DIRECTORY:
+                # 递归删除子目录
+                self._recursive_delete(child_node)
+            # 删除子节点
+            del node.children[child_name]
     
     def list_directory(self, path: str = "/", silent: bool = True) -> List[Dict[str, Any]]:
         """列出目录内容"""
@@ -470,15 +497,16 @@ class VirtualFileSystem:
     
     def get_absolute_path(self, current_dir: str, relative_path: str) -> str:
         """获取绝对路径"""
-        if relative_path.startswith("/"):
-            return self._normalize_path(relative_path)
-        
-        if current_dir == "/":
-            full_path = f"/{relative_path}"
-        else:
-            full_path = f"{current_dir}/{relative_path}"
-        
-        return self._normalize_path(full_path)
+        with self.lock:
+            if relative_path.startswith("/"):
+                return self._normalize_path(relative_path)
+            
+            if current_dir == "/":
+                full_path = f"/{relative_path}"
+            else:
+                full_path = f"{current_dir}/{relative_path}"
+            
+            return self._normalize_path(full_path)
     
     def get_stats(self) -> Dict[str, int]:
         """获取文件系统统计信息"""

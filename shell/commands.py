@@ -130,6 +130,7 @@ class Commands:
         try:
             # 创建目录
             result = self.shell.system.vfs.create_directory(dir_path)
+            
             if result:
                 print(f"{Fore.GREEN}已创建目录: {dir_path}{Style.RESET_ALL}")
             else:
@@ -138,6 +139,7 @@ class Commands:
             
         except Exception as e:
             print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
+            self.logger.error(f"mkdir命令异常: {str(e)}")
             return ""
     
     def rm(self, args: List[str]) -> str:

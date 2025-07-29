@@ -3,6 +3,7 @@
 """
 
 import threading
+import time
 from typing import Dict, List, Optional, Tuple
 from enum import Enum
 
@@ -12,14 +13,14 @@ class PageTableEntry:
     """页表项"""
     
     def __init__(self, virtual_page: int, physical_frame: Optional[int] = None):
-        self.virtual_page = virtual_page
-        self.physical_frame = physical_frame
-        self.present = physical_frame is not None
-        self.accessed = False
-        self.modified = False
-        self.protection = 0  # 保护位
-        self.reference_count = 0
-        self.access_time = 0
+        self.virtual_page = virtual_page           # 虚拟页号
+        self.physical_frame = physical_frame       # 物理帧号（如果已分配，否则为None）
+        self.present = physical_frame is not None  # 是否在内存中
+        self.accessed = False                      # 是否被访问过（访问位）
+        self.modified = False                      # 是否被修改过（脏页位）
+        self.protection = 0                        # 保护位（权限控制）
+        self.reference_count = 0                   # 引用计数
+        self.access_time = 0                       # 最后访问时间
 
 class PageTable:
     """页表"""
@@ -125,7 +126,4 @@ class PageTable:
             print("-" * 80)
             stats = self.get_stats()
             print(f"统计: 总项数 {stats['total_entries']}, 存在 {stats['present_entries']}, "
-                  f"已访问 {stats['accessed_entries']}, 已修改 {stats['modified_entries']}")
-
-# 导入时间模块
-import time 
+                  f"已访问 {stats['accessed_entries']}, 已修改 {stats['modified_entries']}") 
