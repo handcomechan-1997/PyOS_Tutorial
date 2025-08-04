@@ -4,7 +4,6 @@
 
 import logging
 import os
-import time
 import threading
 from datetime import datetime
 from typing import Optional
@@ -69,7 +68,7 @@ class Logger:
                 self.logger.addHandler(file_handler)
                 self._handlers_initialized = True
                 
-            except Exception as e:
+            except Exception:
                 # 如果文件处理器设置失败，只使用控制台
                 pass
     
@@ -107,6 +106,7 @@ class Logger:
         if details:
             message += f" - {details}"
         self.info(message)
+
     
     def log_process_event(self, pid: int, event: str, details: Optional[str] = None):
         """记录进程事件"""
@@ -130,4 +130,4 @@ class Logger:
         
         # 对于文件系统事件，确保文件处理器已初始化
         self._ensure_file_handler()
-        self.info(message) 
+        self.info(message)
