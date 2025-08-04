@@ -17,7 +17,11 @@ from device.device_manager import DeviceManager
 from utils.logger import Logger
 
 class System:
-    """操作系统核心类"""
+    """操作系统核心类
+
+    该类负责协调调度器、内存管理、文件系统等各个子系统，是学习
+    操作系统整体结构的起点。
+    """
     
     def __init__(self):
         """初始化系统"""
@@ -48,10 +52,16 @@ class System:
         self.logger.info("系统核心初始化完成")
     
     def boot(self):
-        """系统启动"""
+        """系统启动
+
+        按以下步骤启动操作系统:
+        1. 记录启动时间并设置运行状态
+        2. 初始化所有子系统
+        3. 启动监控线程以定期更新系统信息
+        """
         self.logger.info("系统启动中...")
-        self.start_time = time.time()
-        self.running = True
+        self.start_time = time.time()  # 记录启动时间
+        self.running = True  # 标记系统正在运行
         
         # 初始化各个子系统
         self.logger.info("正在初始化子系统...")
@@ -82,12 +92,16 @@ class System:
         self.logger.info("系统关闭完成")
     
     def _init_subsystems(self):
-        """初始化子系统"""
+        """初始化子系统
+
+        依次初始化内存管理、文件系统、设备管理、进程管理等模块。
+        在教学中可以逐步完善每个模块以观察系统行为的变化。
+        """
         try:
             # 初始化内存管理
             self.logger.info("初始化内存管理器...")
             self.memory_manager.initialize()
-            
+
             # 初始化文件系统
             self.logger.info("初始化文件系统...")
             self.file_system.initialize()
@@ -114,24 +128,32 @@ class System:
             raise
     
     def _start_monitor(self):
-        """启动系统监控"""
+        """启动系统监控
+
+        创建一个后台线程定期收集系统状态信息。该线程以守护模式运
+        行，不会阻止程序退出。
+        """
         def monitor():
             self.logger.info("系统监控线程启动")
             while self.running:
                 try:
-                    # 更新系统信息
+                    # 每秒刷新一次系统指标，便于调试观察
                     self._update_system_info()
                     time.sleep(1)  # 每秒更新一次
                 except Exception as e:
                     self.logger.error(f"系统监控错误: {e}")
             self.logger.info("系统监控线程结束")
-        
+
         self.monitor_thread = threading.Thread(target=monitor, daemon=True)
         self.monitor_thread.start()
         self.logger.info("系统监控已启动")
     
     def _update_system_info(self):
-        """更新系统信息"""
+        """更新系统信息
+
+        从各个子系统收集运行指标并缓存到 ``system_info`` 字典中，
+        这些数据可用于在 Shell 或日志中展示。
+        """
         try:
             if self.start_time:
                 self.system_info['uptime'] = time.time() - self.start_time
