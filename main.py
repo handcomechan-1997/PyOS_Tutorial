@@ -5,7 +5,7 @@ Python简单操作系统 (PyOS) - 主程序入口
 
 import sys
 import os
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore, Style
 
 # 初始化colorama
 init()
@@ -15,23 +15,30 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from kernel.system import System
 from utils.logger import Logger
+from utils.boot_animation import BootAnimation, show_startup_sequence, show_welcome_message
 
 def main():
     """主程序入口"""
-    print(f"{Fore.CYAN}{'='*50}")
-    print(f"{Fore.CYAN}    Python简单操作系统 (PyOS)")
-    print(f"{Fore.CYAN}    版本: 1.0.0")
-    print(f"{Fore.CYAN}    作者: HandsomeChen")
-    print(f"{Fore.CYAN}{'='*50}{Style.RESET_ALL}")
-    
-    # 初始化日志系统
-    logger = Logger()
-    logger.info("PyOS系统启动中...")
+    # 创建启动动画
+    boot_anim = BootAnimation()
     
     try:
+        # 显示启动界面
+        boot_anim.show_boot_screen()
+        
+        # 显示启动序列
+        show_startup_sequence()
+        
+        # 初始化日志系统
+        logger = Logger()
+        logger.info("PyOS系统启动中...")
+        
         # 创建并启动系统
         system = System()
         system.boot()
+        
+        # 显示欢迎信息
+        show_welcome_message()
         
         # 启动Shell
         from shell.shell import Shell

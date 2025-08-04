@@ -290,7 +290,7 @@ class Shell:
         print(f"版本: {info.get('version', 'Unknown')}")
         print(f"运行时间: {int(info.get('uptime', 0))} 秒")
         print(f"进程数: {info.get('process_count', 0)}")
-        print(f"内存使用: {info.get('memory_usage', 0):.1f}%")
+        print(f"内存使用: {info.get('memory_usage', {}).get('utilization', 0):.1f}%")
         print(f"CPU使用: {info.get('cpu_usage', 0):.1f}%")
         print(f"当前目录: {self.current_directory}")
         print(f"用户: {self.get_environment('USER')}")
