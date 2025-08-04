@@ -18,9 +18,8 @@ class PCB:
         # 进程状态信息
         self.state = "new"
         self.cpu_state = {}  # CPU寄存器状态
-        
+
         # 进程调度信息
-        self.priority = priority
         self.scheduling_info = {
             'arrival_time': time.time(),
             'burst_time': 0,
