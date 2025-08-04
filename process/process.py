@@ -20,7 +20,8 @@ class ProcessState(Enum):
 
 class Process:
     """进程类"""
-    
+
+    # 通过类变量维护下一个可用的 PID，确保每个进程拥有唯一标识
     _next_pid = 1
     
     def __init__(self, name: str, priority: int = 0, target: Optional[Callable] = None):
@@ -53,14 +54,18 @@ class Process:
         self.logger.log_process_event(self.pid, f"created - {name}")
     
     def execute(self, time_quantum: float):
-        """执行进程"""
+        """执行进程
+
+        根据进程的类型模拟执行：如果提供了 ``target`` 函数则直接调用；
+        否则通过 ``sleep`` 模拟 CPU 计算。``time_quantum`` 表示允许运行的时间片长度。
+        """
         with self.lock:
             if self.state != ProcessState.RUNNING:
                 return
-            
+
             if self.start_time is None:
-                self.start_time = time.time()
-            
+                self.start_time = time.time()  # 记录第一次执行的时间
+
             # 模拟进程执行
             if self.target:
                 try:
@@ -74,11 +79,11 @@ class Process:
                     self.state = ProcessState.TERMINATED
                     self.end_time = time.time()
             else:
-                # 模拟CPU密集型任务
+                # 模拟 CPU 密集型任务
                 time.sleep(min(time_quantum, 0.1))
                 self.cpu_time += time_quantum
-                
-                # 模拟进程完成
+
+                # 简单地假设运行 5 秒后进程完成
                 if self.cpu_time >= 5.0:  # 5秒后完成
                     self.state = ProcessState.TERMINATED
                     self.end_time = time.time()
