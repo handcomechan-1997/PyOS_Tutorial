@@ -101,50 +101,17 @@ python main.py
 2025-06-21 00:14:52 - PyOS - INFO - 系统启动完成
 系统启动成功！
 
-系统错误: cannot import name 'Shell' from partially initialized module 'shell.shell' (most likely due to a circular import)
+PyOS Shell 初始化完成
+PyOS:/>
 ```
 
-**注意**: 当前Shell模块存在循环导入问题，这是第一个需要解决的问题。
+**注意**: 如遇到其他问题，请在 issue tracker 中反馈。
 
 ## 📚 详细学习路径
 
 ### 阶段1: 解决基础问题 (第1天)
 
-#### 1.1 解决Shell循环导入问题
-**问题**: Shell模块存在循环导入，导致系统无法启动Shell界面。
-
-**学习目标**: 理解Python模块导入机制和循环导入的解决方法。
-
-**任务**:
-1. 分析 `shell/shell.py` 和 `shell/commands.py` 的导入关系
-2. 使用类型提示字符串或延迟导入解决循环导入
-3. 验证系统能正常启动Shell
-
-**实现步骤**:
-```python
-# 在 shell/commands.py 中，将
-from .shell import Shell
-
-# 改为
-# 删除这行导入，使用字符串类型提示
-def __init__(self, shell: 'Shell'):
-```
-
-**验证方法**:
-```bash
-python main.py
-# 应该看到Shell界面启动，而不是循环导入错误
-```
-
-**预期输出**:
-```
-欢迎使用PyOS Shell!
-输入 'help' 查看可用命令，输入 'exit' 退出系统
-
-PyOS:/>
-```
-
-#### 1.2 实现基础Shell命令
+#### 1.1 实现基础Shell命令
 **学习目标**: 理解命令解析和执行流程。
 
 **任务**: 实现以下基础命令：
@@ -500,9 +467,8 @@ PyOS:/> rmdir testdir
 ## 📝 学习检查清单
 
 ### 阶段1检查清单
-- [ ] 解决Shell循环导入问题
-- [ ] 实现基础Shell命令 (help, version, echo, clear)
-- [ ] 验证系统能正常启动Shell界面
+ - [ ] 实现基础Shell命令 (help, version, echo, clear)
+ - [ ] 验证系统能正常启动Shell界面
 
 ### 阶段2检查清单
 - [ ] 理解进程管理框架
