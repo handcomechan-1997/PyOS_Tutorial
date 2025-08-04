@@ -6,10 +6,12 @@ from .process import Process
 from .pcb import PCB
 from .process_table import ProcessTable
 from .process_manager import ProcessManager
+from .ipc import MessageQueue
 
 __all__ = [
     'Process',
-    'PCB', 
+    'PCB',
     'ProcessTable',
-    'ProcessManager'
-] 
+    'ProcessManager',
+    'MessageQueue'
+]
