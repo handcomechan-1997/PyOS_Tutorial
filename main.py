@@ -7,10 +7,10 @@ import sys
 import os
 from colorama import init, Fore, Back, Style
 
-# 初始化colorama
+# 初始化colorama，用于在终端输出彩色文本
 init()
 
-# 添加项目根目录到Python路径
+# 为方便模块导入，将项目根目录添加到Python路径
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from kernel.system import System
