@@ -10,8 +10,8 @@ class CommandParser:
     
     def __init__(self):
         """初始化命令解析器"""
-        # 重定向模式
-        self.redirect_pattern = re.compile(r'([0-9]*)([><])(.*)')
+        # 重定向模式 - 修复正则表达式以正确匹配 > 和 >>
+        self.redirect_pattern = re.compile(r'([0-9]*)(>>?)(.*)')
         # 管道模式
         self.pipe_pattern = re.compile(r'\s*\|\s*')
         # 引号模式
@@ -63,7 +63,7 @@ class CommandParser:
                 
                 # 处理文件描述符
                 if fd == '':
-                    fd = '1' if operator == '>' else '0'
+                    fd = '1' if operator in ['>', '>>'] else '0'
                 else:
                     fd = fd
                 
@@ -83,14 +83,10 @@ class CommandParser:
                 # 存储重定向信息
                 if operator == '>':
                     redirects[f'{fd}>'] = filename
-                elif operator == '<':
-                    redirects[f'{fd}<'] = filename
                 elif operator == '>>':
                     redirects[f'{fd}>>'] = filename
-                elif operator == '2>':
-                    redirects['2>'] = filename
-                elif operator == '2>>':
-                    redirects['2>>'] = filename
+                elif operator == '<':
+                    redirects[f'{fd}<'] = filename
                 
             else:
                 command_parts.append(part)

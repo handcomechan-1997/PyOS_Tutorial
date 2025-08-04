@@ -223,62 +223,11 @@ class Commands:
     def echo(self, args: List[str]) -> str:
         """输出文本"""
         if not args:
-            print()
             return ""
-        
-        # 检查是否有重定向
-        text_parts = []
-        redirect_file = None
-        append_mode = False
-        
-        i = 0
-        while i < len(args):
-            if args[i] == '>':
-                # 输出重定向
-                if i + 1 < len(args):
-                    redirect_file = args[i + 1]
-                    append_mode = False
-                    break
-            elif args[i] == '>>':
-                # 追加重定向
-                if i + 1 < len(args):
-                    redirect_file = args[i + 1]
-                    append_mode = True
-                    break
-            else:
-                text_parts.append(args[i])
-            i += 1
-        
-        text = " ".join(text_parts)
-        
-        if redirect_file:
-            # 输出重定向到文件
-            if redirect_file.startswith("/"):
-                file_path = redirect_file
-            else:
-                file_path = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, redirect_file)
-            
-            try:
-                if append_mode and self.shell.system.vfs.exists(file_path):
-                    # 追加模式
-                    existing_content = self.shell.system.vfs.read_file(file_path) or ""
-                    new_content = existing_content + text + "\n"
-                else:
-                    # 覆盖模式
-                    new_content = text + "\n"
-                
-                result = self.shell.system.vfs.write_file(file_path, new_content)
-                if result:
-                    print(f"{Fore.GREEN}已将输出写入: {file_path}{Style.RESET_ALL}")
-                else:
-                    print(f"{Fore.RED}错误: 无法写入文件 '{redirect_file}'{Style.RESET_ALL}")
-                    
-            except Exception as e:
-                print(f"{Fore.RED}错误: {str(e)}{Style.RESET_ALL}")
-        else:
-            # 直接输出到终端
-            print(text)
-        
+
+        # 简单输出文本，重定向由Shell层面处理
+        text = " ".join(args)
+        print(text)
         return text
     
     def ps(self, args: List[str]) -> str:

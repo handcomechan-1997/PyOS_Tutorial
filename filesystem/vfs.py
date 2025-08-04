@@ -54,7 +54,8 @@ class VirtualFileSystem:
     def __init__(self):
         """初始化虚拟文件系统"""
         self.logger = Logger()
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
+
         self._init_mode = True  # 初始化模式，减少日志记录
         
         # 创建根目录

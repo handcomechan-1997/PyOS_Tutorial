@@ -218,11 +218,58 @@ class Shell:
     
     def _handle_redirects(self, output: str, redirects: Dict[str, str]):
         """处理输出重定向"""
-        # TODO: 实现输出重定向
-        # 1. 处理标准输出重定向 (>)
-        # 2. 处理标准错误重定向 (2>)
-        # 3. 处理追加重定向 (>>)
-        pass
+        for redirect_type, filename in redirects.items():
+            try:
+                # 解析重定向类型
+                if redirect_type == '1>' or redirect_type == '>':
+                    # 标准输出重定向 (覆盖)
+                    self._redirect_output(filename, output, append=False)
+                elif redirect_type == '1>>' or redirect_type == '>>':
+                    # 标准输出重定向 (追加)
+                    self._redirect_output(filename, output, append=True)
+                elif redirect_type == '2>':
+                    # 标准错误重定向 (覆盖)
+                    self._redirect_output(filename, output, append=False)
+                elif redirect_type == '2>>':
+                    # 标准错误重定向 (追加)
+                    self._redirect_output(filename, output, append=True)
+                elif redirect_type == '0<':
+                    # 标准输入重定向
+                    print(f"{Fore.YELLOW}警告: 输入重定向暂未实现{Style.RESET_ALL}")
+                else:
+                    print(f"{Fore.RED}错误: 不支持的重定向类型: {redirect_type}{Style.RESET_ALL}")
+                    
+            except Exception as e:
+                print(f"{Fore.RED}重定向错误: {e}{Style.RESET_ALL}")
+                self.logger.error(f"重定向错误: {e}")
+    
+    def _redirect_output(self, filename: str, content: str, append: bool = False):
+        """重定向输出到文件"""
+        # 解析文件路径
+        if filename.startswith("/"):
+            file_path = filename
+        else:
+            file_path = self.system.vfs.get_absolute_path(self.current_directory, filename)
+        
+        try:
+            if append and self.system.vfs.exists(file_path):
+                # 追加模式
+                existing_content = self.system.vfs.read_file(file_path) or ""
+                new_content = existing_content + content
+            else:
+                # 覆盖模式
+                new_content = content
+            
+            # 写入文件
+            result = self.system.vfs.write_file(file_path, new_content)
+            if result:
+                print(f"{Fore.GREEN}输出已重定向到: {filename}{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.RED}错误: 无法写入文件 '{filename}'{Style.RESET_ALL}")
+                
+        except Exception as e:
+            print(f"{Fore.RED}文件写入错误: {e}{Style.RESET_ALL}")
+            raise
     
     def _add_to_history(self, command: str):
         """添加命令到历史记录"""
