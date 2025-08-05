@@ -3,8 +3,8 @@ Shell核心模块 - 实现命令行界面
 """
 
 import threading
-from typing import List, Optional, Dict, Any
-from colorama import Fore, Back, Style
+from typing import List, Optional, Dict
+from colorama import Fore, Style
 
 import readline
 import inspect
@@ -94,7 +94,6 @@ class Shell:
         else:
             cmd = tokens[0]
             cur_arg = tokens[-1] if not buffer.endswith(' ') else ''
-            prev_args = tokens[1:-1] if not buffer.endswith(' ') else tokens[1:]
             # 参数补全
             if cur_arg.startswith('-'):
                 options = [p for p in self._get_param_list(cmd) if p.startswith(cur_arg)]
@@ -375,4 +374,4 @@ class Shell:
         print("  tree -d 2       - 显示深度为2的目录树")
         print("  cd /home/user   - 切换到用户目录")
         print()
-        print(f"{Fore.YELLOW}注意: 这是一个虚拟文件系统，与真实文件系统隔离{Style.RESET_ALL}") 
+        print(f"{Fore.YELLOW}注意: 这是一个虚拟文件系统，与真实文件系统隔离{Style.RESET_ALL}")

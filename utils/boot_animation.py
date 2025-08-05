@@ -6,7 +6,7 @@ import sys
 import os
 import time
 import threading
-from colorama import Fore, Back, Style
+from colorama import Fore, Style
 
 class BootAnimation:
     """启动动画类"""
@@ -67,7 +67,7 @@ class BootAnimation:
 ║  {Fore.WHITE}操作系统: {Fore.CYAN}PyOS 1.0.0{Fore.GREEN}                              ║
 ║  {Fore.WHITE}Python版本: {Fore.CYAN}{sys.version.split()[0]}{Fore.GREEN}                    ║
 ║  {Fore.WHITE}平台: {Fore.CYAN}{sys.platform}{Fore.GREEN}                              ║
-║  {Fore.WHITE}架构: {Fore.CYAN}{sys.maxsize > 2**32 and '64-bit' or '32-bit'}{Fore.GREEN}                    ║
+    ║  {Fore.WHITE}架构: {Fore.CYAN}{'64-bit' if sys.maxsize > 2**32 else '32-bit'}{Fore.GREEN}                    ║
 ║  {Fore.WHITE}启动时间: {Fore.CYAN}{time.strftime('%Y-%m-%d %H:%M:%S')}{Fore.GREEN}              ║
 ╚══════════════════════════════════════════════════════════════╝{Style.RESET_ALL}
 """
@@ -119,4 +119,4 @@ def show_welcome_message():
     """显示欢迎信息"""
     print(f"\n{Fore.CYAN}{'='*60}")
     print(f"{Fore.CYAN}    🎉 欢迎使用 PyOS 操作系统! 🎉")
-    print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}") 
+    print(f"{Fore.CYAN}{'='*60}{Style.RESET_ALL}")
