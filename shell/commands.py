@@ -381,18 +381,25 @@ class Commands:
         max_depth = 3
         target_dir = self.shell.current_directory
         
-        for i, arg in enumerate(args):
+        i = 0
+        while i < len(args):
+            arg = args[i]
             if arg == '-d' and i + 1 < len(args):
                 try:
                     max_depth = int(args[i + 1])
+                    i += 2  # 跳过深度值
                 except ValueError:
                     print(f"{Fore.RED}错误: 无效的深度值 '{args[i + 1]}'{Style.RESET_ALL}")
                     return ""
-            elif not arg.startswith('-') and arg.isdigit() == False:
+            elif not arg.startswith('-'):
+                # 不是选项参数，可能是路径
                 if arg.startswith("/"):
                     target_dir = arg
                 else:
                     target_dir = self.shell.system.vfs.get_absolute_path(self.shell.current_directory, arg)
+                i += 1
+            else:
+                i += 1  # 跳过未知选项
         
         try:
             if not self.shell.system.vfs.exists(target_dir):

@@ -543,7 +543,9 @@ class VirtualFileSystem:
         if not node or node.node_type != VFSNodeType.DIRECTORY:
             return
         
-        print(f"{prefix}{node.name}/")
+        # 只在根目录时打印根目录名
+        if current_depth == 0:
+            print(f"{prefix}/")
         
         children = list(node.children.items())
         children.sort(key=lambda x: (x[1].node_type.value, x[0]))

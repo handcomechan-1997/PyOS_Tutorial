@@ -86,7 +86,7 @@ class BootAnimation:
             time.sleep(0.1)
             i += 1
         
-        print(f"\r{Fore.GREEN}✓ {Fore.WHITE}PyOS系统启动完成!{Style.RESET_ALL}")
+        # print(f"\r{Fore.GREEN}✓ {Fore.WHITE}PyOS系统启动完成!{Style.RESET_ALL}")
 
 def show_progress_bar(title, duration=2):
     """显示进度条"""
@@ -103,13 +103,13 @@ def show_progress_bar(title, duration=2):
 def show_startup_sequence():
     """显示启动序列"""
     startup_steps = [
-        ("初始化系统核心", 1.5),
-        ("加载内存管理器", 1.0),
-        ("初始化文件系统", 1.2),
-        ("启动设备管理器", 0.8),
-        ("创建进程管理器", 1.0),
-        ("启动调度器", 0.5),
-        ("初始化Shell环境", 0.8)
+        ("初始化系统核心", 0.8),
+        ("加载内存管理器", 0.5),
+        ("初始化文件系统", 0.6),
+        ("启动设备管理器", 0.4),
+        ("创建进程管理器", 0.5),
+        ("启动调度器", 0.3),
+        ("初始化Shell环境", 0.4)
     ]
     
     for step, duration in startup_steps:
