@@ -24,7 +24,7 @@ def main():
 
     try:
         boot_anim.show_boot_screen()
-        show_startup_sequence()
+        show_startup_sequence(boot_anim)
         logger.info("PyOS系统启动中...")
 
         system = System()
