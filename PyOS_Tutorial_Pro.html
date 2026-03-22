@@ -1671,7 +1671,1288 @@ flowchart TB
                 </div>
             </section>
 
-            <!-- Continue with remaining chapters... -->
+            <!-- Chapter 7 -->
+            <section id="chapter7">
+                <h2>第七章：设备管理</h2>
+
+                <h3>7.1 设备管理概述</h3>
+
+                <h4>7.1.1 设备分类</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>特点</th>
+                            <th>示例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>块设备</td>
+                            <td>随机访问，块为单位</td>
+                            <td>硬盘、SSD</td>
+                        </tr>
+                        <tr>
+                            <td>字符设备</td>
+                            <td>顺序访问，字符为单位</td>
+                            <td>键盘、鼠标</td>
+                        </tr>
+                        <tr>
+                            <td>网络设备</td>
+                            <td>网络通信</td>
+                            <td>网卡</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>7.1.2 设备管理的功能</h4>
+                <ol>
+                    <li><strong>设备分配</strong>：分配设备给进程</li>
+                    <li><strong>设备控制</strong>：控制设备的操作</li>
+                    <li><strong>中断处理</strong>：处理设备中断</li>
+                    <li><strong>缓冲管理</strong>：管理I/O缓冲区</li>
+                </ol>
+
+                <h3>7.2 设备管理器</h3>
+                <p><strong>代码位置</strong>：<code>device/device_manager.py</code></p>
+
+                <pre><code class="language-python">class Device:
+    """设备基类"""
+
+    def __init__(self, device_id: str, device_type: str, name: str):
+        self.device_id = device_id
+        self.device_type = device_type
+        self.name = name
+        self.is_active = False
+        self.properties = {}
+
+    def initialize(self) -> bool:
+        """初始化设备"""
+        self.is_active = True
+        return True
+
+    def shutdown(self) -> bool:
+        """关闭设备"""
+        self.is_active = False
+        return True
+
+    def get_status(self) -> Dict:
+        """获取设备状态"""
+        return {
+            'device_id': self.device_id,
+            'device_type': self.device_type,
+            'name': self.name,
+            'is_active': self.is_active
+        }
+
+class DeviceManager:
+    """设备管理器
+
+    管理系统中的所有设备
+    """
+
+    def __init__(self):
+        self.devices = {}              # 设备ID -> 设备
+        self.device_types = {}         # 设备类型 -> 设备ID列表
+
+    def register_device(self, device: Device) -> bool:
+        """注册设备"""
+        if device.device_id in self.devices:
+            return False
+
+        self.devices[device.device_id] = device
+
+        # 按类型索引
+        if device.device_type not in self.device_types:
+            self.device_types[device.device_type] = []
+        self.device_types[device.device_type].append(device.device_id)
+
+        return True
+
+    def get_device(self, device_id: str) -> Optional[Device]:
+        """获取设备"""
+        return self.devices.get(device_id)
+
+    def get_devices_by_type(self, device_type: str) -> List[Device]:
+        """按类型获取设备"""
+        device_ids = self.device_types.get(device_type, [])
+        return [self.devices[did] for did in device_ids]</code></pre>
+
+                <h3>7.3 设备驱动示例</h3>
+
+                <h4>7.3.1 终端设备</h4>
+                <p><strong>代码位置</strong>：<code>device/terminal.py</code></p>
+
+                <pre><code class="language-python">class Terminal(Device):
+    """终端设备"""
+
+    def __init__(self):
+        super().__init__("terminal_0", "terminal", "System Terminal")
+        self.buffer = []
+
+    def write(self, data: str):
+        """输出数据"""
+        self.buffer.append(data)
+        print(data, end='')
+
+    def read(self) -> str:
+        """读取输入"""
+        return input()</code></pre>
+
+                <h4>7.3.2 键盘设备</h4>
+                <p><strong>代码位置</strong>：<code>device/keyboard.py</code></p>
+
+                <pre><code class="language-python">class Keyboard(Device):
+    """键盘设备"""
+
+    def __init__(self):
+        super().__init__("keyboard_0", "keyboard", "System Keyboard")
+        self.buffer = queue.Queue()
+
+    def put_key(self, key: str):
+        """放入按键"""
+        self.buffer.put(key)
+
+    def get_key(self, timeout: float = None) -> Optional[str]:
+        """获取按键"""
+        try:
+            return self.buffer.get(timeout=timeout)
+        except queue.Empty:
+            return None</code></pre>
+
+                <h3>7.4 实践练习</h3>
+
+                <h4>练习7.1：查看系统设备</h4>
+                <pre><code class="language-python">from device.device_manager import DeviceManager
+
+# 创建设备管理器
+dm = DeviceManager()
+dm.initialize()
+
+# 查看所有设备
+devices = dm.get_all_devices()
+for device in devices:
+    print(f"{device.device_id}: {device.name} ({device.device_type})")
+
+# 按类型查看
+terminals = dm.get_devices_by_type("terminal")
+print(f"\n终端设备数: {len(terminals)}")</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>为什么需要设备驱动程序？</li>
+                        <li>阻塞I/O和非阻塞I/O有什么区别？</li>
+                        <li>设备控制器的作用是什么？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Chapter 8 -->
+            <section id="chapter8">
+                <h2>第八章：中断与系统调用</h2>
+
+                <h3>8.1 中断的概念</h3>
+                <p>中断是操作系统实现多任务和响应外部事件的关键机制。</p>
+
+                <h4>8.1.1 中断类型</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>类型</th>
+                            <th>来源</th>
+                            <th>示例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>硬件中断</td>
+                            <td>外部设备</td>
+                            <td>时钟中断、I/O完成</td>
+                        </tr>
+                        <tr>
+                            <td>软件中断</td>
+                            <td>程序执行</td>
+                            <td>系统调用、异常</td>
+                        </tr>
+                        <tr>
+                            <td>异常</td>
+                            <td>程序错误</td>
+                            <td>除零、缺页</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>8.1.2 中断处理过程</h4>
+                <div class="mermaid">
+flowchart TD
+    subgraph interrupt_flow["中断处理流程"]
+        direction TB
+
+        START["中断发生"] --> SAVE["1. 保存上下文<br/>保存PC、PSW、寄存器"]
+        SAVE --> IDENTIFY["2. 确定中断源<br/>查找中断向量表"]
+        IDENTIFY --> EXECUTE["3. 执行中断处理程序"]
+        EXECUTE --> RESTORE["4. 恢复上下文<br/>恢复寄存器"]
+        RESTORE --> RETURN["5. 返回<br/>返回被中断的程序"]
+    end
+
+    subgraph context["上下文内容"]
+        PC["程序计数器 PC"]
+        PSW["程序状态字 PSW"]
+        REG["通用寄存器"]
+        SP["栈指针 SP"]
+    end
+
+    SAVE -.-> context
+    RESTORE -.-> context
+
+    style START fill:#ffebee
+    style SAVE fill:#fff3e0
+    style IDENTIFY fill:#e8f5e9
+    style EXECUTE fill:#e3f2fd
+    style RESTORE fill:#f3e5f5
+    style RETURN fill:#c8e6c9
+                </div>
+
+                <h3>8.2 中断处理器</h3>
+                <p><strong>代码位置</strong>：<code>kernel/interrupt.py</code></p>
+
+                <pre><code class="language-python">class InterruptType(Enum):
+    """中断类型枚举"""
+    TIMER = "timer"              # 时钟中断
+    I_O = "io"                   # I/O中断
+    SYSTEM_CALL = "system_call"  # 系统调用
+    PAGE_FAULT = "page_fault"    # 缺页中断
+    DIVIDE_BY_ZERO = "divide_by_zero"  # 除零异常
+
+class InterruptHandler:
+    """中断处理器"""
+
+    def __init__(self):
+        self.interrupt_handlers = {}  # 中断类型 -> 处理程序列表
+        self.interrupt_queue = []     # 中断队列
+        self.interrupt_enabled = True # 中断使能
+
+    def register_handler(self, interrupt_type: InterruptType,
+                         handler: Callable):
+        """注册中断处理程序"""
+        if interrupt_type not in self.interrupt_handlers:
+            self.interrupt_handlers[interrupt_type] = []
+        self.interrupt_handlers[interrupt_type].append(handler)
+
+    def raise_interrupt(self, interrupt_type: InterruptType,
+                        data: Any = None):
+        """触发中断"""
+        interrupt = {
+            'type': interrupt_type,
+            'data': data,
+            'timestamp': time.time()
+        }
+        self.interrupt_queue.append(interrupt)
+
+    def handle_interrupts(self):
+        """处理中断队列"""
+        while self.interrupt_queue and self.interrupt_enabled:
+            interrupt = self.interrupt_queue.pop(0)
+            self._process_interrupt(interrupt)
+
+    def _process_interrupt(self, interrupt: Dict):
+        """处理单个中断"""
+        interrupt_type = interrupt['type']
+        data = interrupt['data']
+
+        if interrupt_type in self.interrupt_handlers:
+            for handler in self.interrupt_handlers[interrupt_type]:
+                handler(data)</code></pre>
+
+                <h3>8.3 系统调用</h3>
+                <p>系统调用是用户程序请求操作系统服务的接口。</p>
+
+                <h4>8.3.1 系统调用的类型</h4>
+                <p><strong>代码位置</strong>：<code>kernel/system_call.py</code></p>
+
+                <pre><code class="language-python">class SystemCallType(Enum):
+    """系统调用类型"""
+    # 进程相关
+    FORK = "fork"       # 创建进程
+    EXEC = "exec"       # 执行程序
+    EXIT = "exit"       # 退出进程
+    WAIT = "wait"       # 等待进程
+    GETPID = "getpid"   # 获取进程ID
+
+    # 文件相关
+    OPEN = "open"       # 打开文件
+    READ = "read"       # 读取文件
+    WRITE = "write"     # 写入文件
+    CLOSE = "close"     # 关闭文件
+
+    # 内存相关
+    BRK = "brk"         # 调整堆大小
+    MMAP = "mmap"       # 内存映射
+
+    # 其他
+    TIME = "time"       # 获取时间
+    SLEEP = "sleep"     # 睡眠</code></pre>
+
+                <h3>8.4 系统调用过程</h3>
+                <div class="mermaid">
+sequenceDiagram
+    participant UP as 用户程序
+    participant KL as 内核
+
+    Note over UP: 1. 准备参数
+    UP->>KL: 2. 执行系统调用指令 (int 0x80 / syscall)
+    Note over KL: 3. 保存用户上下文
+    Note over KL: 4. 查找系统调用表
+    Note over KL: 5. 执行系统调用处理
+    Note over KL: 6. 恢复用户上下文
+    KL-->>UP: 7. 返回结果
+
+    Note over UP,KL: 特权级切换: 用户态 → 内核态 → 用户态
+                </div>
+
+                <h3>8.5 实践练习</h3>
+
+                <h4>练习8.1：注册中断处理程序</h4>
+                <pre><code class="language-python">from kernel.interrupt import InterruptHandler, InterruptType
+
+# 创建中断处理器
+handler = InterruptHandler()
+
+# 定义处理函数
+def timer_handler(data):
+    print(f"时钟中断: {data}")
+
+def page_fault_handler(data):
+    print(f"缺页中断: 地址 {data}")
+
+# 注册处理程序
+handler.register_handler(InterruptType.TIMER, timer_handler)
+handler.register_handler(InterruptType.PAGE_FAULT, page_fault_handler)
+
+# 触发中断
+handler.raise_interrupt(InterruptType.TIMER, "tick")
+handler.raise_interrupt(InterruptType.PAGE_FAULT, 0x1000)
+
+# 处理中断
+handler.handle_interrupts()</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>中断和系统调用有什么区别？</li>
+                        <li>为什么系统调用需要从用户态切换到内核态？</li>
+                        <li>如何保证中断处理的原子性？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Chapter 9 -->
+            <section id="chapter9">
+                <h2>第九章：进程同步</h2>
+
+                <h3>9.1 同步的基本概念</h3>
+                <p>在多进程/多线程环境中，多个执行流可能同时访问共享资源，需要同步机制来保证正确性。</p>
+
+                <h4>9.1.1 竞态条件</h4>
+                <pre><code class="language-python"># 竞态条件示例
+counter = 0
+
+def increment():
+    global counter
+    for _ in range(100000):
+        counter += 1  # 非原子操作！
+
+# 两个线程同时执行
+t1 = threading.Thread(target=increment)
+t2 = threading.Thread(target=increment)
+t1.start(); t2.start()
+t1.join(); t2.join()
+
+print(counter)  # 预期200000，实际可能小于</code></pre>
+
+                <h4>9.1.2 临界区</h4>
+                <p>临界区是访问共享资源的代码段，需要满足以下条件：</p>
+                <ol>
+                    <li><strong>互斥</strong>：一次只允许一个进程进入</li>
+                    <li><strong>有限等待</strong>：不能无限等待</li>
+                    <li><strong>空闲让进</strong>：无进程在临界区时，应允许进入</li>
+                    <li><strong>让权等待</strong>：不能进入时应释放CPU</li>
+                </ol>
+
+                <h3>9.2 信号量</h3>
+                <p><strong>代码位置</strong>：<code>sync/semaphore.py</code></p>
+
+                <pre><code class="language-python">class Semaphore:
+    """通用信号量实现"""
+
+    def __init__(self, value: int = 1, name: str = ""):
+        if value &lt; 0:
+            raise ValueError("信号量初始值不能为负数")
+
+        self._value = value
+        self._lock = threading.Lock()
+        self._wait_queue = deque()  # 等待队列
+
+    def acquire(self, timeout: Optional[float] = None) -> bool:
+        """P操作 - 申请资源"""
+        with self._lock:
+            if self._value &gt; 0:
+                self._value -= 1
+                return True
+
+            # 需要等待
+            event = threading.Event()
+            self._wait_queue.append(event)
+
+        # 在锁外等待
+        return event.wait(timeout=timeout)
+
+    def release(self):
+        """V操作 - 释放资源"""
+        with self._lock:
+            if self._wait_queue:
+                # 唤醒等待的进程
+                event = self._wait_queue.popleft()
+                event.set()
+            else:
+                self._value += 1
+
+    # 别名
+    def P(self): return self.acquire()
+    def V(self): self.release()</code></pre>
+
+                <h3>9.3 经典同步问题</h3>
+
+                <h4>9.3.1 生产者-消费者问题</h4>
+                <div class="mermaid">
+flowchart TB
+    subgraph pc_model["生产者-消费者模型"]
+        direction TB
+
+        subgraph producers["生产者"]
+            P1["生产者1"]
+            P2["生产者2"]
+        end
+
+        subgraph buffer["缓冲区 (大小=N)"]
+            B1["产品1"]
+            B2["产品2"]
+            B3["..."]
+            B4["产品N"]
+        end
+
+        subgraph consumers["消费者"]
+            C1["消费者1"]
+            C2["消费者2"]
+        end
+
+        subgraph semaphores["信号量控制"]
+            MUTEX["mutex = 1<br/>互斥访问缓冲区"]
+            EMPTY["empty = N<br/>空槽位数"]
+            FULL["full = 0<br/>产品数量"]
+        end
+
+        P1 -->|P(empty)| buffer
+        P2 -->|P(empty)| buffer
+        buffer -->|P(full)| C1
+        buffer -->|P(full)| C2
+
+        MUTEX -.->|控制| buffer
+        EMPTY -.->|控制| buffer
+        FULL -.->|控制| buffer
+    end
+
+    style producers fill:#c8e6c9
+    style consumers fill:#bbdefb
+    style buffer fill:#fff3e0
+    style MUTEX fill:#f3e5f5
+    style EMPTY fill:#e8f5e9
+    style FULL fill:#ffebee
+                </div>
+
+                <pre><code class="language-python">class ProducerConsumer:
+    """生产者-消费者问题"""
+
+    def __init__(self, buffer_size: int = 10):
+        self.buffer = []
+        self.buffer_size = buffer_size
+
+        self.mutex = Semaphore(1)       # 互斥访问缓冲区
+        self.empty = Semaphore(buffer_size)  # 空槽位数
+        self.full = Semaphore(0)        # 产品数
+
+    def produce(self, item):
+        """生产者"""
+        self.empty.P()      # 等待空槽位
+        self.mutex.P()      # 进入临界区
+        try:
+            self.buffer.append(item)
+        finally:
+            self.mutex.V()  # 离开临界区
+            self.full.V()   # 增加产品数
+
+    def consume(self):
+        """消费者"""
+        self.full.P()       # 等待产品
+        self.mutex.P()      # 进入临界区
+        try:
+            item = self.buffer.pop(0)
+            return item
+        finally:
+            self.mutex.V()  # 离开临界区
+            self.empty.V()  # 增加空槽位</code></pre>
+
+                <h3>9.4 实践练习</h3>
+
+                <h4>练习9.1：使用信号量实现互斥</h4>
+                <pre><code class="language-python">from sync.semaphore import Semaphore
+
+# 创建二进制信号量
+mutex = Semaphore(1, "my_mutex")
+
+counter = 0
+
+def safe_increment():
+    global counter
+    for _ in range(10000):
+        mutex.P()
+        counter += 1
+        mutex.V()
+
+# 测试
+import threading
+threads = [threading.Thread(target=safe_increment) for _ in range(5)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()
+
+print(f"Counter: {counter}")  # 应该是50000</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>信号量和互斥锁有什么区别？</li>
+                        <li>为什么条件变量需要配合互斥锁使用？</li>
+                        <li>读者-写者问题中，如何实现写者优先？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Chapter 10 -->
+            <section id="chapter10">
+                <h2>第十章：死锁</h2>
+
+                <h3>10.1 死锁的概念</h3>
+                <p>死锁是指两个或多个进程互相等待对方释放资源，导致都无法继续执行。</p>
+
+                <h4>10.1.1 死锁的四个必要条件</h4>
+                <div class="mermaid">
+flowchart TB
+    subgraph deadlock_conditions["死锁的四个必要条件"]
+        direction TB
+
+        M["互斥条件<br/>资源不能共享"]
+        H["占有并等待<br/>持有资源同时请求其他资源"]
+        N["不可抢占<br/>已分配的资源不能强制收回"]
+        C["循环等待<br/>存在进程等待环路"]
+    end
+
+    subgraph example["死锁示例: P1和P2互相等待"]
+        direction LR
+        P1["进程P1<br/>持有: 资源A<br/>请求: 资源B"]
+        P2["进程P2<br/>持有: 资源B<br/>请求: 资源A"]
+
+        RA["资源A"]
+        RB["资源B"]
+
+        P1 -->|持有| RA
+        P2 -->|持有| RB
+        P1 -.->|请求| RB
+        P2 -.->|请求| RA
+    end
+
+    M --> H --> N --> C
+
+    style M fill:#ffebee
+    style H fill:#fff3e0
+    style N fill:#e8f5e9
+    style C fill:#f3e5f5
+    style P1 fill:#ffcdd2
+    style P2 fill:#ffcdd2
+    style RA fill:#c8e6c9
+    style RB fill:#c8e6c9
+                </div>
+
+                <h3>10.2 银行家算法</h3>
+                <p><strong>代码位置</strong>：<code>deadlock/banker.py</code></p>
+
+                <div class="mermaid">
+flowchart TB
+    subgraph banker_data["银行家算法数据结构"]
+        direction TB
+
+        subgraph resource_vectors["资源向量"]
+            TOTAL["Total = [10, 5, 7]<br/>总资源"]
+            AVAIL["Available = [3, 3, 2]<br/>可用资源"]
+        end
+
+        subgraph process_matrices["进程矩阵"]
+            subgraph P0["进程P0"]
+                A0["Allocation = [0, 1, 0]<br/>已分配"]
+                N0["Need = [7, 4, 3]<br/>还需要"]
+                M0["Max = [7, 5, 3]<br/>最大需求"]
+            end
+
+            subgraph P1["进程P1"]
+                A1["Allocation = [2, 0, 0]<br/>已分配"]
+                N1["Need = [1, 2, 2]<br/>还需要"]
+                M1["Max = [3, 2, 2]<br/>最大需求"]
+            end
+        end
+    end
+
+    subgraph safety_check["安全性检查"]
+        SC["寻找安全序列<br/>使得每个进程都能获得所需资源完成执行"]
+    end
+
+    resource_vectors --> process_matrices --> safety_check
+
+    style TOTAL fill:#e3f2fd
+    style AVAIL fill:#e8f5e9
+    style P0 fill:#fff3e0
+    style P1 fill:#f3e5f5
+    style SC fill:#c8e6c9
+                </div>
+
+                <pre><code class="language-python">class BankersAlgorithm:
+    """银行家算法实现"""
+
+    def __init__(self, resource_types: List[str],
+                 total_resources: List[int]):
+        self._resource_types = resource_types  # 资源类型
+        self._total = total_resources          # 总资源
+        self._available = total_resources[:]   # 可用资源
+        self._processes = {}                   # 进程信息
+
+    def _safety_check(self) -> Tuple[bool, List[str]]:
+        """安全性算法
+
+        检查系统是否处于安全状态
+        """
+        # 初始化
+        work = self._available[:]
+        finish = {pid: False for pid in self._processes}
+        safe_sequence = []
+
+        # 尝试找到安全序列
+        while True:
+            found = False
+            for pid, process in self._processes.items():
+                if not finish[pid]:
+                    # 检查 Need <= Work
+                    can_allocate = all(
+                        process['need'][i] &lt;= work[i]
+                        for i in range(len(self._resource_types))
+                    )
+
+                    if can_allocate:
+                        # 可以满足这个进程
+                        for i in range(len(self._resource_types)):
+                            work[i] += process['allocation'][i]
+                        finish[pid] = True
+                        safe_sequence.append(pid)
+                        found = True
+
+            if not found:
+                break
+
+        # 所有进程都能完成 -> 安全状态
+        return all(finish.values()), safe_sequence</code></pre>
+
+                <h3>10.3 实践练习</h3>
+
+                <h4>练习10.1：银行家算法演示</h4>
+                <pre><code class="language-python">from deadlock.banker import BankersAlgorithm
+
+# 创建银行家算法实例
+banker = BankersAlgorithm(
+    resource_types=['A', 'B', 'C'],
+    total_resources=[10, 5, 7]
+)
+
+# 添加进程
+banker.add_process('P0', [7, 5, 3])
+banker.add_process('P1', [3, 2, 2])
+banker.add_process('P2', [9, 0, 2])
+banker.add_process('P3', [2, 2, 2])
+banker.add_process('P4', [4, 3, 3])
+
+# 请求资源
+success, msg = banker.request_resources('P1', [1, 0, 2])
+print(f"P1请求[1,0,2]: {msg}")
+
+# 查看状态
+banker.print_state()</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>死锁的四个必要条件是什么？破坏任何一个是否就能避免死锁？</li>
+                        <li>银行家算法有什么缺点？</li>
+                        <li>死锁预防和死锁避免有什么区别？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Chapter 11 -->
+            <section id="chapter11">
+                <h2>第十一章：线程管理</h2>
+
+                <h3>11.1 线程的概念</h3>
+                <p>线程是CPU调度的基本单位，同一进程的线程共享进程资源。</p>
+
+                <h4>11.1.1 线程与进程的比较</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>特性</th>
+                            <th>进程</th>
+                            <th>线程</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>资源</td>
+                            <td>独立地址空间</td>
+                            <td>共享地址空间</td>
+                        </tr>
+                        <tr>
+                            <td>开销</td>
+                            <td>创建/切换开销大</td>
+                            <td>开销小</td>
+                        </tr>
+                        <tr>
+                            <td>通信</td>
+                            <td>需要IPC</td>
+                            <td>直接共享内存</td>
+                        </tr>
+                        <tr>
+                            <td>安全</td>
+                            <td>相互隔离</td>
+                            <td>一个崩溃影响全部</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>11.2 线程模型</h3>
+                <div class="mermaid">
+flowchart TB
+    subgraph thread_models["线程模型对比"]
+        direction TB
+
+        subgraph user_thread["用户级线程 (ULT)"]
+            UAPP["应用程序"]
+            UTM["用户线程库<br/>调度、切换在用户空间"]
+            UK["内核<br/>不知道线程存在"]
+
+            UAPP --> UTM --> UK
+        end
+
+        subgraph kernel_thread["内核级线程 (KLT)"]
+            KAPP["应用程序"]
+            KTM["线程库"]
+            KK["内核线程调度器<br/>每个线程对应一个内核线程"]
+
+            KAPP --> KTM --> KK
+        end
+
+        subgraph hybrid_model["混合模型"]
+            MAPP["应用程序"]
+            MUL["用户线程"]
+            MKL["内核线程<br/>多对一或一对一映射"]
+
+            MAPP --> MUL --> MKL
+        end
+    end
+
+    style user_thread fill:#e3f2fd
+    style kernel_thread fill:#f3e5f5
+    style hybrid_model fill:#e8f5e9
+                </div>
+
+                <h3>11.3 线程池</h3>
+                <p><strong>代码位置</strong>：<code>thread/thread_pool.py</code></p>
+
+                <pre><code class="language-python">class ThreadPool:
+    """线程池实现
+
+    预先创建一组线程，重复利用执行任务
+    """
+
+    def __init__(self, max_workers: int = 4, name: str = ""):
+        self._max_workers = max_workers
+        self._task_queue = queue.Queue()
+        self._workers = []
+        self._state = PoolState.RUNNING
+
+        # 创建工作线程
+        self._create_workers()
+
+    def _create_workers(self):
+        """创建工作线程"""
+        for i in range(self._max_workers):
+            worker = threading.Thread(
+                target=self._worker_loop,
+                daemon=True
+            )
+            worker.start()
+            self._workers.append(worker)
+
+    def _worker_loop(self):
+        """工作线程主循环"""
+        while self._state == PoolState.RUNNING:
+            try:
+                task = self._task_queue.get(timeout=0.5)
+                if task is None:  # 停止信号
+                    break
+
+                future, func, args, kwargs = task
+                try:
+                    result = func(*args, **kwargs)
+                    future.set_result(result)
+                except Exception as e:
+                    future.set_exception(e)
+
+            except queue.Empty:
+                continue
+
+    def submit(self, func: Callable, *args, **kwargs) -> Future:
+        """提交任务"""
+        future = Future()
+        self._task_queue.put((future, func, args, kwargs))
+        return future
+
+    def map(self, func: Callable, iterable: List) -> List:
+        """批量执行"""
+        futures = [self.submit(func, item) for item in iterable]
+        return [f.result() for f in futures]</code></pre>
+
+                <h3>11.4 实践练习</h3>
+
+                <h4>练习11.1：使用线程池</h4>
+                <pre><code class="language-python">from thread.thread_pool import ThreadPool
+
+# 创建线程池
+pool = ThreadPool(max_workers=4)
+
+# 定义任务
+def task(n):
+    time.sleep(0.5)
+    return n * n
+
+# 提交任务
+futures = [pool.submit(task, i) for i in range(10)]
+
+# 获取结果
+results = [f.result() for f in futures]
+print(f"结果: {results}")
+
+# 使用map
+results = pool.map(lambda x: x ** 2, range(10))
+print(f"Map结果: {results}")
+
+# 关闭线程池
+pool.shutdown()</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>线程池的优点是什么？</li>
+                        <li>用户级线程和内核级线程各有什么优缺点？</li>
+                        <li>多线程和多进程各适用于什么场景？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Chapter 12 -->
+            <section id="chapter12">
+                <h2>第十二章：I/O系统</h2>
+
+                <h3>12.1 I/O系统概述</h3>
+                <p>I/O系统负责管理计算机与外部设备之间的数据传输。</p>
+
+                <h4>12.1.1 I/O控制方式</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>方式</th>
+                            <th>特点</th>
+                            <th>适用场景</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>程序直接控制</td>
+                            <td>CPU忙等</td>
+                            <td>简单系统</td>
+                        </tr>
+                        <tr>
+                            <td>中断驱动</td>
+                            <td>CPU可做其他事</td>
+                            <td>一般系统</td>
+                        </tr>
+                        <tr>
+                            <td>DMA</td>
+                            <td>批量传输</td>
+                            <td>高速设备</td>
+                        </tr>
+                        <tr>
+                            <td>通道</td>
+                            <td>独立I/O处理器</td>
+                            <td>大型机</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>12.2 I/O调度算法</h3>
+                <p><strong>代码位置</strong>：<code>io/scheduler.py</code></p>
+
+                <div class="mermaid">
+flowchart TB
+    subgraph io_scheduling["I/O调度算法比较"]
+        direction TB
+
+        subgraph request_queue["磁盘请求队列"]
+            REQ["请求: [98, 183, 37, 122, 14, 124, 65, 67]<br/>当前磁头位置: 53"]
+        end
+
+        subgraph algorithm_compare["算法寻道距离比较"]
+            FCFS["FCFS (先来先服务)<br/>按请求顺序: 53→98→183→37→122→14→124→65→67<br/>总寻道: 640"]
+
+            SSTF["SSTF (最短寻道时间优先)<br/>选择最近请求: 53→65→67→37→14→98→122→124→183<br/>总寻道: 236"]
+
+            SCAN["SCAN (电梯算法)<br/>单向扫描: 53→65→67→98→122→124→183→37→14<br/>总寻道: 236"]
+        end
+
+        REQ --> algorithm_compare
+    end
+
+    style FCFS fill:#ffebee
+    style SSTF fill:#fff3e0
+    style SCAN fill:#e8f5e9
+                </div>
+
+                <h4>12.2.1 FCFS（先来先服务）</h4>
+                <pre><code class="language-python">def _fcfs(self) -> Optional[IORequest]:
+    """FCFS: 按请求顺序执行"""
+    return self._pending_requests.pop(0)</code></pre>
+
+                <h4>12.2.2 SSTF（最短寻道时间优先）</h4>
+                <pre><code class="language-python">def _sstf(self) -> Optional[IORequest]:
+    """SSTF: 选择离当前位置最近的请求"""
+    min_distance = float('inf')
+    min_index = 0
+
+    for i, req in enumerate(self._pending_requests):
+        distance = abs(req.block_number - self._current_position)
+        if distance &lt; min_distance:
+            min_distance = distance
+            min_index = i
+
+    return self._pending_requests.pop(min_index)</code></pre>
+
+                <h4>12.2.3 SCAN（电梯算法）</h4>
+                <pre><code class="language-python">def _scan(self) -> Optional[IORequest]:
+    """SCAN: 电梯算法
+
+    磁头来回扫描，处理沿途请求
+    """
+    sorted_requests = sorted(self._pending_requests,
+                            key=lambda r: r.block_number)
+
+    # 在当前方向上找请求
+    for req in sorted_requests:
+        if self._direction == 1 and req.block_number &gt;= self._current_position:
+            self._pending_requests.remove(req)
+            return req
+        elif self._direction == -1 and req.block_number &lt;= self._current_position:
+            self._pending_requests.remove(req)
+            return req
+
+    # 改变方向
+    self._direction *= -1
+    # 继续查找...</code></pre>
+
+                <h3>12.3 实践练习</h3>
+
+                <h4>练习12.1：比较I/O调度算法</h4>
+                <pre><code class="language-python">from io.scheduler import IOScheduler, IOSchedulerType
+
+# 创建测试请求
+blocks = [98, 183, 37, 122, 14, 124, 65, 67]
+
+for algo in [IOSchedulerType.FCFS, IOSchedulerType.SSTF,
+             IOSchedulerType.SCAN, IOSchedulerType.LOOK]:
+    scheduler = IOScheduler(algo, initial_position=53)
+
+    for block in blocks:
+        scheduler.submit_request(block, IOType.READ, 1024, 0)
+
+    scheduler.run_all()
+    stats = scheduler.get_stats()
+
+    print(f"{algo.value}: 平均寻道距离={stats['average_seek_distance']:.2f}")</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>为什么磁盘调度比磁带调度更复杂？</li>
+                        <li>SCAN和C-SCAN有什么区别？</li>
+                        <li>缓冲技术如何提高I/O效率？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Chapter 13 -->
+            <section id="chapter13">
+                <h2>第十三章：进程间通信</h2>
+
+                <h3>13.1 IPC概述</h3>
+                <div class="mermaid">
+flowchart TB
+    subgraph ipc_mechanisms["进程间通信 IPC 机制"]
+        direction TB
+
+        subgraph process_a["进程A"]
+            PA_DATA["数据"]
+        end
+
+        subgraph communication["通信方式"]
+            PIPE["管道 Pipe<br/>单向字节流<br/>父子进程通信"]
+
+            MSG["消息队列 Message Queue<br/>结构化消息<br/>异步通信"]
+
+            SHM["共享内存 Shared Memory<br/>最快IPC<br/>需要同步"]
+
+            SOCK["套接字 Socket<br/>网络通信<br/>跨主机"]
+        end
+
+        subgraph process_b["进程B"]
+            PB_DATA["数据"]
+        end
+
+        process_a -->|写入| communication
+        communication -->|读取| process_b
+    end
+
+    style process_a fill:#e3f2fd
+    style process_b fill:#f3e5f5
+    style PIPE fill:#fff3e0
+    style MSG fill:#e8f5e9
+    style SHM fill:#ffebee
+    style SOCK fill:#e0f2f1
+                </div>
+
+                <h3>13.2 管道</h3>
+                <p><strong>代码位置</strong>：<code>ipc/__init__.py</code></p>
+
+                <pre><code class="language-python">class Pipe:
+    """匿名管道
+
+    单向通信通道，用于父子进程间通信
+    """
+
+    def __init__(self, buffer_size: int = 65536):
+        self._buffer = deque()
+        self._buffer_size = buffer_size
+        self._lock = threading.Lock()
+        self._read_condition = threading.Condition(self._lock)
+        self._write_condition = threading.Condition(self._lock)
+
+    def write(self, data: bytes) -> int:
+        """写入数据"""
+        with self._write_condition:
+            while len(self._buffer) &gt;= self._buffer_size:
+                self._write_condition.wait()
+
+            for byte in data:
+                self._buffer.append(byte)
+            self._read_condition.notify()
+
+        return len(data)
+
+    def read(self, size: int = -1) -> bytes:
+        """读取数据"""
+        with self._read_condition:
+            while not self._buffer:
+                self._read_condition.wait()
+
+            if size == -1:
+                size = len(self._buffer)
+
+            data = [self._buffer.popleft() for _ in range(min(size, len(self._buffer)))]
+            self._write_condition.notify()
+
+        return bytes(data)</code></pre>
+
+                <h3>13.3 共享内存</h3>
+                <pre><code class="language-python">class SharedMemory:
+    """共享内存
+
+    允许多个进程访问同一块内存区域
+    """
+
+    def __init__(self, name: str, size: int):
+        self._name = name
+        self._size = size
+        self._memory = bytearray(size)
+        self._lock = threading.Lock()
+        self._attached_processes = []
+
+    def read(self, offset: int = 0, size: int = -1) -> bytes:
+        """读取共享内存"""
+        with self._lock:
+            if size == -1:
+                size = self._size - offset
+            return bytes(self._memory[offset:offset + size])
+
+    def write(self, data: bytes, offset: int = 0) -> int:
+        """写入共享内存"""
+        with self._lock:
+            size = min(len(data), self._size - offset)
+            self._memory[offset:offset + size] = data[:size]
+            return size</code></pre>
+
+                <h3>13.4 消息队列</h3>
+                <pre><code class="language-python">class MessageQueue:
+    """消息队列
+
+    进程间异步通信机制
+    """
+
+    def __init__(self, key: int, max_size: int = 100):
+        self._key = key
+        self._max_size = max_size
+        self._queue = deque()
+        self._lock = threading.Lock()
+        self._not_empty = threading.Condition(self._lock)
+
+    def send(self, msg_type: int, data: Any, sender_pid: int) -> bool:
+        """发送消息"""
+        with self._not_empty:
+            while len(self._queue) &gt;= self._max_size:
+                self._not_empty.wait()
+
+            msg = Message(msg_type, data, sender_pid)
+            self._queue.append(msg)
+            self._not_empty.notify()
+
+        return True
+
+    def receive(self, msg_type: int = 0) -> Optional[Message]:
+        """接收消息"""
+        with self._not_empty:
+            while not self._queue:
+                self._not_empty.wait()
+
+            if msg_type == 0:
+                return self._queue.popleft()
+            else:
+                # 查找特定类型的消息
+                for i, msg in enumerate(self._queue):
+                    if msg.type == msg_type:
+                        del self._queue[i]
+                        return msg</code></pre>
+
+                <h3>13.5 实践练习</h3>
+
+                <h4>练习13.1：使用管道通信</h4>
+                <pre><code class="language-python">from ipc import Pipe
+
+# 创建管道
+pipe = Pipe()
+
+def writer():
+    for i in range(5):
+        msg = f"消息{i}".encode()
+        pipe.write(msg)
+        print(f"写入: {msg.decode()}")
+    pipe.close()
+
+def reader():
+    while True:
+        data = pipe.read(timeout=1)
+        if data:
+            print(f"读取: {data.decode()}")
+        elif pipe.is_closed:
+            break
+
+import threading
+w = threading.Thread(target=writer)
+r = threading.Thread(target=reader)
+w.start(); r.start()
+w.join(); r.join()</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>管道和消息队列有什么区别？</li>
+                        <li>共享内存为什么需要同步机制？</li>
+                        <li>什么时候使用哪种IPC机制？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Conclusion -->
+            <section id="conclusion">
+                <h2>结语</h2>
+                <p>恭喜你完成了PyOS教程的学习！通过这个教程，你应该已经掌握了操作系统的核心概念：</p>
+
+                <ul>
+                    <li>进程管理与调度</li>
+                    <li>内存管理与虚拟内存</li>
+                    <li>文件系统</li>
+                    <li>设备管理</li>
+                    <li>中断与系统调用</li>
+                    <li>进程同步</li>
+                    <li>死锁处理</li>
+                    <li>线程管理</li>
+                    <li>I/O系统</li>
+                    <li>进程间通信</li>
+                </ul>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">学习建议</div>
+                    <p>操作系统是一门实践性很强的课程，建议你：</p>
+                    <ol>
+                        <li><strong>动手实践</strong>：运行、修改、扩展代码</li>
+                        <li><strong>深入思考</strong>：理解设计决策背后的原因</li>
+                        <li><strong>阅读源码</strong>：学习真实操作系统的实现</li>
+                        <li><strong>持续学习</strong>：关注操作系统的新发展</li>
+                    </ol>
+                </div>
+
+                <p style="text-align: center; margin-top: 40px; font-size: 1.125rem; color: var(--text-primary);">
+                    <strong>祝你学习愉快！</strong>
+                </p>
+            </section>
+
             <!-- Footer -->
             <hr>
             <footer style="text-align: center; padding: 40px 0; color: var(--text-secondary);">
