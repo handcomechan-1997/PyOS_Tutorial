@@ -588,31 +588,34 @@
                 <h4>1.1.1 操作系统的角色</h4>
                 <div class="mermaid">
 flowchart TB
-    subgraph 软件层["软件层"]
-        APP[应用程序]
-        API[应用程序接口 API]
+    subgraph software["软件层"]
+        APP["应用程序"]
+        API["应用程序接口 API"]
     end
 
-    subgraph 操作系统层["操作系统层 - 本教程重点"]
-        OS[操作系统
-        进程管理 | 内存管理 | 文件系统
-        设备管理 | 中断处理 | 系统调用]
+    subgraph os_layer["操作系统层 - 本教程重点"]
+        OS["操作系统"]
+        OS_DETAIL["进程管理 | 内存管理 | 文件系统<br/>设备管理 | 中断处理 | 系统调用"]
     end
 
-    subgraph 硬件层["硬件层"]
-        HW[硬件资源
-        CPU | 内存 | 磁盘 | I/O设备]
+    subgraph hardware["硬件层"]
+        HW["硬件资源"]
+        HW_DETAIL["CPU | 内存 | 磁盘 | I/O设备"]
     end
 
     APP --> API
     API --> OS
+    OS --> OS_DETAIL
     OS --> HW
-    HW -.中断.-> OS
+    HW --> HW_DETAIL
+    HW -.->|中断| OS
 
     style APP fill:#e1f5fe
     style API fill:#fff3e0
     style OS fill:#c8e6c9
+    style OS_DETAIL fill:#c8e6c9
     style HW fill:#ffebee
+    style HW_DETAIL fill:#ffebee
                 </div>
 
                 <div class="info-box tip">
@@ -1275,35 +1278,29 @@ print(f"恢复后状态: {process.state}")  # READY</code></pre>
                 <h4>3.1.1 调度的层次</h4>
                 <div class="mermaid">
 flowchart TB
-    subgraph 外存["外存 / 磁盘"]
-        JOB1[作业1]
-        JOB2[作业2]
-        JOB3[作业3]
+    subgraph external["外存/磁盘"]
+        JOB1["作业1"]
+        JOB2["作业2"]
+        JOB3["作业3"]
     end
 
-    subgraph 内存["内存"]
-        subgraph 就绪队列["就绪队列"]
-            P1[进程A]
-            P2[进程B]
-            P3[进程C]
+    subgraph memory["内存"]
+        subgraph ready_queue["就绪队列"]
+            P1["进程A"]
+            P2["进程B"]
+            P3["进程C"]
         end
 
-        subgraph CPU["CPU"]
-            RUN[运行进程]
+        subgraph cpu["CPU"]
+            RUN["运行进程"]
         end
     end
 
-    subgraph 调度器["调度层次"]
+    subgraph scheduler["调度层次"]
         direction TB
-        LTS["作业调度
-长程调度
-频率: 分钟级"]
-        MTS["中程调度
-内存调度
-频率: 秒级"]
-        STS["进程调度
-短程调度
-频率: 毫秒级"]
+        LTS["作业调度<br/>长程调度<br/>频率: 分钟级"]
+        MTS["中程调度<br/>内存调度<br/>频率: 秒级"]
+        STS["进程调度<br/>短程调度<br/>频率: 毫秒级"]
     end
 
     JOB1 -->|作业调度| P1
@@ -1317,8 +1314,8 @@ flowchart TB
     style LTS fill:#ffebee
     style MTS fill:#fff3e0
     style STS fill:#e8f5e9
-    style CPU fill:#e3f2fd
-    style 就绪队列 fill:#f3e5f5
+    style cpu fill:#e3f2fd
+    style ready_queue fill:#f3e5f5
                 </div>
 
                 <h3>3.2 调度算法</h3>
@@ -1327,13 +1324,12 @@ flowchart TB
                 <h4>3.2.1 时间片轮转（Round Robin）</h4>
                 <div class="mermaid">
 flowchart LR
-    subgraph 时间片轮转调度["时间片轮转调度"]
+    subgraph rr_sched["时间片轮转调度"]
         direction LR
 
-        RQ["就绪队列
-P1 | P2 | P3 | P4"]
+        RQ["就绪队列<br/>P1 | P2 | P3 | P4"]
 
-        subgraph CPU执行["CPU执行"]
+        subgraph cpu_exec["CPU执行"]
             P1_RUN["P1 运行"]
             P2_RUN["P2 运行"]
             P3_RUN["P3 运行"]
@@ -1346,7 +1342,7 @@ P1 | P2 | P3 | P4"]
         RQ --> P3_RUN
     end
 
-    subgraph 时间线["执行时间线"]
+    subgraph timeline["执行时间线"]
         direction LR
         T0["0s"]
         T1["1s"]
@@ -1429,34 +1425,34 @@ P1 | P2 | P3 | P4"]
                 <h4>4.1.2 内存分配方式</h4>
                 <div class="mermaid">
 flowchart TB
-    subgraph 内存分配方式["内存分配方式分类"]
+    subgraph mem_alloc["内存分配方式分类"]
         direction TB
 
         CA["连续分配"]
         NCA["非连续分配"]
     end
 
-    subgraph 连续分配["连续分配"]
+    subgraph contiguous["连续分配"]
         direction TB
         FF["首次适应 First Fit"]
         BF["最佳适应 Best Fit"]
         WF["最坏适应 Worst Fit"]
     end
 
-    subgraph 非连续分配["非连续分配"]
+    subgraph non_contiguous["非连续分配"]
         direction TB
         PAGE["分页式"]
         SEG["分段式"]
         PAGESEG["段页式"]
     end
 
-    CA --> 连续分配
-    NCA --> 非连续分配
+    CA --> contiguous
+    NCA --> non_contiguous
 
     style CA fill:#e3f2fd
     style NCA fill:#f3e5f5
-    style 连续分配 fill:#e8f5e9
-    style 非连续分配 fill:#fff3e0
+    style contiguous fill:#e8f5e9
+    style non_contiguous fill:#fff3e0
                 </div>
 
                 <h3>4.2 连续内存分配</h3>
@@ -1502,19 +1498,15 @@ class MemoryAllocator:
                 <h4>5.1.2 分页机制</h4>
                 <div class="mermaid">
 flowchart LR
-    subgraph 虚拟地址空间["虚拟地址空间"]
+    subgraph virtual_addr["虚拟地址空间"]
         direction TB
-        V0["页 0
-0x0000-0x0FFF"]
-        V1["页 1
-0x1000-0x1FFF"]
-        V2["页 2
-0x2000-0x2FFF"]
-        V3["页 3
-0x3000-0x3FFF"]
+        V0["页 0<br/>0x0000-0x0FFF"]
+        V1["页 1<br/>0x1000-0x1FFF"]
+        V2["页 2<br/>0x2000-0x2FFF"]
+        V3["页 3<br/>0x3000-0x3FFF"]
     end
 
-    subgraph 页表["页表"]
+    subgraph page_table["页表"]
         direction TB
         PT0["0 → 帧 3"]
         PT1["1 → 帧 4"]
@@ -1522,7 +1514,7 @@ flowchart LR
         PT3["3 → 帧 7"]
     end
 
-    subgraph 物理内存["物理内存"]
+    subgraph physical_mem["物理内存"]
         direction TB
         F0["帧 0"]
         F1["帧 1"]
@@ -1546,7 +1538,7 @@ flowchart LR
     style F4 fill:#f3e5f5
     style F5 fill:#e8f5e9
     style F7 fill:#fff3e0
-    style 页表 fill:#fff8e1
+    style page_table fill:#fff8e1
                 </div>
 
                 <h3>5.3 地址转换</h3>
@@ -1555,30 +1547,28 @@ flowchart LR
     subgraph 地址转换过程["虚拟地址 → 物理地址转换"]
         direction LR
 
-        VA["虚拟地址
-0x1234"]
+        VA["虚拟地址<br/>0x1234"]
 
-        subgraph 分解["地址分解"]
+        subgraph decompose["地址分解"]
             PN["页号 = 0x1"]
             OFFSET["偏移 = 0x234"]
         end
 
         PT["页表查找"]
 
-        subgraph 合成["物理地址合成"]
+        subgraph compose["物理地址合成"]
             FN["帧号 = 0x5"]
-            PA["物理地址
-0x5234"]
+            PA["物理地址<br/>0x5234"]
         end
 
-        VA -->|页大小=4KB| 分解
+        VA -->|页大小=4KB| decompose
         PN --> PT
         PT --> FN
         OFFSET --> PA
         FN --> PA
     end
 
-    subgraph 公式["计算公式"]
+    subgraph formulas["计算公式"]
         F1["页号 = 虚拟地址 / 页大小"]
         F2["偏移 = 虚拟地址 % 页大小"]
         F3["物理地址 = 帧号 × 页大小 + 偏移"]
@@ -1586,8 +1576,8 @@ flowchart LR
 
     style VA fill:#e3f2fd
     style PA fill:#c8e6c9
-    style 分解 fill:#fff3e0
-    style 合成 fill:#f3e5f5
+    style decompose fill:#fff3e0
+    style compose fill:#f3e5f5
     style PT fill:#ffebee
                 </div>
             </section>
@@ -1610,23 +1600,18 @@ flowchart LR
                 <h4>6.1.2 文件系统的层次结构</h4>
                 <div class="mermaid">
 flowchart TB
-    subgraph 文件系统层次结构["文件系统层次结构"]
+    subgraph fs_hierarchy["文件系统层次结构"]
         direction TB
 
-        UI["用户接口层
-open | read | write | close"]
+        UI["用户接口层<br/>open | read | write | close"]
 
-        DS["文件目录系统
-路径解析 | 目录操作 | 权限检查"]
+        DS["文件目录系统<br/>路径解析 | 目录操作 | 权限检查"]
 
-        FO["文件组织模块
-文件分配 | 空闲空间管理 | 索引管理"]
+        FO["文件组织模块<br/>文件分配 | 空闲空间管理 | 索引管理"]
 
-        DD["设备驱动层
-磁盘读写 | 缓冲区管理 | I/O调度"]
+        DD["设备驱动层<br/>磁盘读写 | 缓冲区管理 | I/O调度"]
 
-        HW["硬件层
-磁盘 | SSD | 其他存储设备"]
+        HW["硬件层<br/>磁盘 | SSD | 其他存储设备"]
     end
 
     APP["应用程序"] --> UI
