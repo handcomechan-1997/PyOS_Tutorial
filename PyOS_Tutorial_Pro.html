@@ -2139,7 +2139,7 @@ flowchart TB
             P2["生产者2"]
         end
 
-        subgraph buffer["缓冲区 (大小=N)"]
+        subgraph buffer["缓冲区 大小=N"]
             B1["产品1"]
             B2["产品2"]
             B3["..."]
@@ -2152,19 +2152,19 @@ flowchart TB
         end
 
         subgraph semaphores["信号量控制"]
-            MUTEX["mutex = 1<br/>互斥访问缓冲区"]
-            EMPTY["empty = N<br/>空槽位数"]
-            FULL["full = 0<br/>产品数量"]
+            MUTEX["mutex=1<br/>互斥访问缓冲区"]
+            EMPTY["empty=N<br/>空槽位数"]
+            FULL["full=0<br/>产品数量"]
         end
 
-        P1 -->|P(empty)| buffer
-        P2 -->|P(empty)| buffer
-        buffer -->|P(full)| C1
-        buffer -->|P(full)| C2
+        P1 -->|申请空槽位| buffer
+        P2 -->|申请空槽位| buffer
+        buffer -->|申请产品| C1
+        buffer -->|申请产品| C2
 
-        MUTEX -.->|控制| buffer
-        EMPTY -.->|控制| buffer
-        FULL -.->|控制| buffer
+        MUTEX -.->|互斥控制| buffer
+        EMPTY -.->|空槽控制| buffer
+        FULL -.->|产品控制| buffer
     end
 
     style producers fill:#c8e6c9
