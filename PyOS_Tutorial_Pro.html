@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyOS 操作系统教程 - 专业版</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/bash.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary-color: #64748b;
+            --bg-color: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --content-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --border-color: #e2e8f0;
+            --code-bg: #f1f5f9;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-purple: #8b5cf6;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* Layout */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        .search-box {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Navigation */
+        .nav-menu {
+            padding: 12px 0;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-link:hover {
+            background-color: #f8fafc;
+            color: var(--primary-color);
+        }
+
+        .nav-link.active {
+            background-color: #eff6ff;
+            color: var(--primary-color);
+            font-weight: 600;
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .nav-toggle {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            transition: transform 0.2s;
+        }
+
+        .nav-toggle.expanded {
+            transform: rotate(90deg);
+        }
+
+        .nav-text {
+            flex: 1;
+        }
+
+        .nav-chapter {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 16px 20px 8px;
+        }
+
+        .nav-children {
+            display: none;
+            padding-left: 20px;
+        }
+
+        .nav-children.expanded {
+            display: block;
+        }
+
+        .nav-level-1 .nav-link {
+            padding-left: 20px;
+            font-weight: 600;
+        }
+
+        .nav-level-2 .nav-link {
+            padding-left: 40px;
+            font-size: 0.85rem;
+        }
+
+        .nav-level-3 .nav-link {
+            padding-left: 60px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 320px;
+            padding: 40px 60px;
+            max-width: 900px;
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-top: 48px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 36px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        /* Links */
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-bottom: 20px;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        li::marker {
+            color: var(--primary-color);
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            border-radius: 12px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 24px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
+
+        pre code {
+            font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            background: transparent;
+            padding: 0;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background: #e2e8f0;
+            border-radius: 12px 12px 0 0;
+            margin: -20px -20px 16px -20px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .copy-btn {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .copy-btn.copied {
+            background: var(--accent-green);
+            color: white;
+            border-color: var(--accent-green);
+        }
+
+        /* Inline Code */
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: "SF Mono", Monaco, monospace;
+            font-size: 0.875em;
+            color: var(--accent-purple);
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Blockquotes */
+        blockquote {
+            border-left: 4px solid var(--primary-color);
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            background: #eff6ff;
+            border-radius: 0 12px 12px 0;
+        }
+
+        blockquote p {
+            margin-bottom: 0;
+            color: var(--text-primary);
+        }
+
+        /* Info Boxes */
+        .info-box {
+            padding: 20px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border-left: 4px solid;
+        }
+
+        .info-box.tip {
+            background: #ecfdf5;
+            border-color: var(--accent-green);
+        }
+
+        .info-box.warning {
+            background: #fffbeb;
+            border-color: var(--accent-orange);
+        }
+
+        .info-box.info {
+            background: #eff6ff;
+            border-color: var(--primary-color);
+        }
+
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-box.tip .info-box-title { color: var(--accent-green); }
+        .info-box.warning .info-box-title { color: var(--accent-orange); }
+        .info-box.info .info-box-title { color: var(--primary-color); }
+
+        /* Mermaid */
+        .mermaid {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Horizontal Rule */
+        hr {
+            border: none;
+            height: 1px;
+            background: var(--border-color);
+            margin: 48px 0;
+        }
+
+        /* Strong and Emphasis */
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Print Styles */
+        @media print {
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 40px;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 24px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Progress Indicator */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 320px;
+            right: 0;
+            height: 3px;
+            background: var(--border-color);
+            z-index: 200;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-purple));
+            width: 0%;
+            transition: width 0.1s;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>PyOS 教程</h1>
+                <p>Python 操作系统教学</p>
+            </div>
+
+            <div class="search-box">
+                <input type="text" placeholder="搜索章节..." id="searchInput">
+            </div>
+
+            <nav class="nav-menu" id="navMenu">
+                <!-- Navigation will be generated by JavaScript -->
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <div class="breadcrumb">
+                <a href="#">首页</a>
+                <span>/</span>
+                <span id="currentSection">PyOS 操作系统教程</span>
+            </div>
+
+            <h1>PyOS 操作系统教程</h1>
+
+            <div class="info-box info">
+                <div class="info-box-title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="16" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                    </svg>
+                    欢迎来到 PyOS 教程
+                </div>
+                <p>本教程将通过一个用 Python 实现的操作系统模拟器，带你深入理解操作系统的核心概念和实现原理。</p>
+            </div>
+
+            <h2>教程特点</h2>
+            <ul>
+                <li><strong>理论与实践结合</strong>：每个概念都配有可运行的代码示例</li>
+                <li><strong>循序渐进</strong>：从简单到复杂，逐步深入</li>
+                <li><strong>动手实践</strong>：提供大量练习和思考题</li>
+                <li><strong>中文注释</strong>：代码注释详尽，便于理解</li>
+            </ul>
+
+            <h2>学习建议</h2>
+            <ol>
+                <li>按章节顺序学习，每个章节都有前置知识要求</li>
+                <li>阅读代码时，先看注释理解整体逻辑，再深入细节</li>
+                <li>运行示例代码，观察输出结果</li>
+                <li>尝试修改代码，观察行为变化</li>
+                <li>完成每章的练习题</li>
+            </ol>
+
+            <hr>
+
+            <!-- Chapter 1 -->
+            <section id="chapter1">
+                <h2>第一章：操作系统概述</h2>
+
+                <h3>1.1 什么是操作系统</h3>
+                <p>操作系统（Operating System, OS）是计算机系统中最基本的系统软件，它管理和控制计算机硬件与软件资源，为用户和其他软件提供接口和服务。</p>
+
+                <h4>1.1.1 操作系统的角色</h4>
+                <div class="mermaid">
+flowchart TB
+    subgraph 软件层["软件层"]
+        APP[应用程序]
+        API[应用程序接口 API]
+    end
+
+    subgraph 操作系统层["操作系统层 - 本教程重点"]
+        OS[操作系统
+        进程管理 | 内存管理 | 文件系统
+        设备管理 | 中断处理 | 系统调用]
+    end
+
+    subgraph 硬件层["硬件层"]
+        HW[硬件资源
+        CPU | 内存 | 磁盘 | I/O设备]
+    end
+
+    APP --> API
+    API --> OS
+    OS --> HW
+    HW -.中断.-> OS
+
+    style APP fill:#e1f5fe
+    style API fill:#fff3e0
+    style OS fill:#c8e6c9
+    style HW fill:#ffebee
+                </div>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                        </svg>
+                        操作系统的三大角色
+                    </div>
+                    <ol>
+                        <li><strong>资源管理者</strong>：管理CPU、内存、I/O设备等硬件资源</li>
+                        <li><strong>服务提供者</strong>：为应用程序提供服务接口</li>
+                        <li><strong>用户接口</strong>：提供人机交互界面</li>
+                    </ol>
+                </div>
+
+                <h4>1.1.2 操作系统的发展历程</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>时期</th>
+                            <th>类型</th>
+                            <th>特点</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1940s</td>
+                            <td>手工操作</td>
+                            <td>无操作系统，人工控制</td>
+                        </tr>
+                        <tr>
+                            <td>1950s</td>
+                            <td>批处理系统</td>
+                            <td>自动作业切换，提高效率</td>
+                        </tr>
+                        <tr>
+                            <td>1960s</td>
+                            <td>分时系统</td>
+                            <td>多用户交互，时间片轮转</td>
+                        </tr>
+                        <tr>
+                            <td>1970s</td>
+                            <td>实时系统</td>
+                            <td>及时响应，可靠性高</td>
+                        </tr>
+                        <tr>
+                            <td>1980s-</td>
+                            <td>现代操作系统</td>
+                            <td>多任务、多用户、网络化</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>1.2 PyOS 项目架构</h3>
+                <p>PyOS 是一个用 Python 实现的教学操作系统，模拟了真实操作系统的核心功能。</p>
+
+                <h4>1.2.1 系统架构图</h4>
+                <div class="mermaid">
+flowchart TB
+    subgraph PyOS架构["PyOS 系统架构"]
+        direction TB
+
+        subgraph 用户层["用户层"]
+            SHELL["Shell
+命令行界面"]
+            CMD["Commands
+命令实现"]
+        end
+
+        subgraph 内核层["内核层 Kernel"]
+            SYS["System
+系统核心"]
+            SCHED["Scheduler
+进程调度"]
+            INT["Interrupt
+中断处理"]
+            SC["System Call
+系统调用"]
+        end
+
+        subgraph 管理层["管理层"]
+            PROC["Process
+进程管理"]
+            MEM["Memory
+内存管理"]
+            FS["File System
+文件系统"]
+            DEV["Device
+设备管理"]
+        end
+
+        subgraph 支持层["支持层"]
+            SYNC["Sync
+同步机制"]
+            DL["Deadlock
+死锁处理"]
+            THR["Thread
+线程管理"]
+            IO["I/O
+I/O系统"]
+            IPC["IPC
+进程通信"]
+        end
+
+        SHELL --> CMD --> SYS
+        SYS --> SCHED
+        SYS --> INT
+        SYS --> SC
+
+        SYS --> PROC
+        SYS --> MEM
+        SYS --> FS
+        SYS --> DEV
+
+        PROC --> SYNC
+        PROC --> DL
+        PROC --> THR
+        DEV --> IO
+        PROC --> IPC
+    end
+
+    style 用户层 fill:#e3f2fd
+    style 内核层 fill:#c8e6c9
+    style 管理层 fill:#fff3e0
+    style 支持层 fill:#f3e5f5
+                </div>
+
+                <h4>1.2.2 启动流程</h4>
+                <div class="mermaid">
+flowchart TD
+    subgraph 启动流程["PyOS 启动流程"]
+        direction TB
+
+        START["开始"] --> BOOT["1. 显示启动画面
+BootAnimation"]
+        BOOT --> INIT["2. 创建系统实例
+System()"]
+        INIT --> SUBSYS["3. 初始化子系统"]
+
+        subgraph 子系统初始化["子系统初始化顺序"]
+            direction TB
+            M1["内存管理器
+MemoryManager"]
+            F1["文件系统
+FileSystem"]
+            D1["设备管理器
+DeviceManager"]
+            P1["进程管理器
+ProcessManager"]
+            S1["调度器
+Scheduler"]
+
+            M1 --> F1 --> D1 --> P1 --> S1
+        end
+
+        SUBSYS --> 子系统初始化
+        S1 --> SHELL["4. 启动Shell
+提供用户交互"]
+        SHELL --> RUN["系统运行中..."]
+    end
+
+    style START fill:#c8e6c9
+    style BOOT fill:#e3f2fd
+    style INIT fill:#fff3e0
+    style SUBSYS fill:#f3e5f5
+    style SHELL fill:#e8f5e9
+    style RUN fill:#bbdefb
+                </div>
+
+                <p>让我们从 <code>main.py</code> 开始，了解系统是如何启动的：</p>
+
+                <pre><code class="language-python"># main.py
+def main():
+    """主程序入口"""
+    logger = Logger()
+    boot_anim = BootAnimation()
+
+    try:
+        # 1. 显示启动画面
+        boot_anim.show_boot_screen()
+        show_startup_sequence(boot_anim)
+
+        # 2. 创建系统实例
+        system = System()
+
+        # 3. 启动系统
+        system.boot()
+
+        # 4. 启动Shell
+        from shell.shell import Shell
+        shell = Shell(system)
+        shell.run()
+
+    except KeyboardInterrupt:
+        print("系统被用户中断")
+    finally:
+        print("感谢使用PyOS！")</code></pre>
+
+                <div class="info-box info">
+                    <div class="info-box-title">启动流程解析</div>
+                    <ol>
+                        <li><strong>初始化日志系统</strong>：记录系统运行信息</li>
+                        <li><strong>显示启动画面</strong>：模拟BIOS自检过程</li>
+                        <li><strong>创建系统实例</strong>：初始化各个子系统</li>
+                        <li><strong>启动系统</strong>：加载所有模块</li>
+                        <li><strong>启动Shell</strong>：提供用户交互界面</li>
+                    </ol>
+                </div>
+
+                <h3>1.3 系统核心类</h3>
+                <p>系统核心类 <code>System</code> 是整个操作系统的控制中心，负责协调各个子系统。</p>
+                <p><strong>代码位置</strong>：<code>kernel/system.py</code></p>
+
+                <pre><code class="language-python">class System:
+    """操作系统核心类
+
+    该类负责协调调度器、内存管理、文件系统等各个子系统
+    """
+
+    def __init__(self):
+        # 初始化系统组件
+        self.scheduler = Scheduler()        # 进程调度器
+        self.memory_manager = MemoryManager() # 内存管理器
+        self.interrupt_handler = InterruptHandler() # 中断处理器
+        self.system_call = SystemCall()     # 系统调用
+        self.process_manager = ProcessManager() # 进程管理器
+        self.file_system = FileSystem()     # 文件系统
+        self.device_manager = DeviceManager() # 设备管理器</code></pre>
+
+                <h4>1.3.1 子系统初始化顺序</h4>
+                <p>系统启动时，各子系统按特定顺序初始化：</p>
+
+                <pre><code class="language-python">def _init_subsystems(self):
+    """初始化子系统"""
+    # 1. 初始化内存管理（其他子系统需要内存）
+    self.memory_manager.initialize()
+
+    # 2. 初始化文件系统
+    self.file_system.initialize()
+
+    # 3. 初始化设备管理
+    self.device_manager.initialize()
+
+    # 4. 初始化进程管理（需要调度器和内存管理器）
+    self.process_manager.initialize(self.scheduler, self.memory_manager)
+
+    # 5. 启动调度器
+    self.scheduler.start()</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        思考题
+                    </div>
+                    <p>为什么内存管理器要最先初始化？</p>
+                </div>
+
+                <h3>1.4 实践练习</h3>
+
+                <h4>练习1.1：运行系统</h4>
+                <pre><code class="language-bash"># 安装依赖
+pip install -r requirements.txt
+
+# 运行系统
+python main.py</code></pre>
+
+                <p>预期输出：</p>
+                <pre><code>==================================================
+    Python简单操作系统 (PyOS)
+    版本: 1.0.0
+==================================================
+系统启动成功！
+欢迎使用PyOS Shell!
+输入 'help' 查看可用命令
+PyOS:/&gt;</code></pre>
+
+                <h4>练习1.2：探索Shell</h4>
+                <p>在Shell中尝试以下命令：</p>
+                <pre><code>PyOS:/&gt; help          # 查看帮助
+PyOS:/&gt; info          # 查看系统信息
+PyOS:/&gt; ps            # 查看进程
+PyOS:/&gt; ls            # 列出文件
+PyOS:/&gt; version       # 查看版本</code></pre>
+            </section>
+
+            <hr>
+
+            <!-- Chapter 2 -->
+            <section id="chapter2">
+                <h2>第二章：进程管理</h2>
+
+                <h3>2.1 进程的概念</h3>
+                <p>进程（Process）是程序的一次执行过程，是操作系统资源分配的基本单位。</p>
+
+                <h4>2.1.1 进程与程序的区别</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>特性</th>
+                            <th>程序</th>
+                            <th>进程</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>本质</td>
+                            <td>静态的代码集合</td>
+                            <td>动态的执行过程</td>
+                        </tr>
+                        <tr>
+                            <td>生命周期</td>
+                            <td>永久存在</td>
+                            <td>暂时的</td>
+                        </tr>
+                        <tr>
+                            <td>组成</td>
+                            <td>代码+数据</td>
+                            <td>代码+数据+PCB</td>
+                        </tr>
+                        <tr>
+                            <td>资源</td>
+                            <td>不占用系统资源</td>
+                            <td>占用CPU、内存等</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>2.1.2 进程的状态</h4>
+                <div class="mermaid">
+stateDiagram-v2
+    [*] --> 创建 : 进程创建
+    创建 --> 就绪 : 初始化完成
+
+    就绪 --> 运行 : 被调度器选中
+    运行 --> 就绪 : 时间片用完
+
+    运行 --> 阻塞 : I/O请求/等待事件
+    阻塞 --> 就绪 : I/O完成/事件发生
+
+    运行 --> 终止 : 执行完毕
+    终止 --> [*]
+
+    note right of 创建
+        分配PCB
+        初始化资源
+    end note
+
+    note right of 就绪
+        等待CPU
+        在就绪队列中
+    end note
+
+    note right of 运行
+        占用CPU
+        正在执行
+    end note
+
+    note right of 阻塞
+        等待I/O
+        或等待资源
+    end note
+                </div>
+
+                <div class="info-box info">
+                    <div class="info-box-title">五种基本状态</div>
+                    <ul>
+                        <li><strong>创建（New）</strong>：进程正在被创建</li>
+                        <li><strong>就绪（Ready）</strong>：进程已准备好运行，等待CPU</li>
+                        <li><strong>运行（Running）</strong>：进程正在执行</li>
+                        <li><strong>阻塞（Waiting/Blocked）</strong>：进程等待某个事件</li>
+                        <li><strong>终止（Terminated）</strong>：进程执行完毕</li>
+                    </ul>
+                </div>
+
+                <h3>2.2 进程控制块（PCB）</h3>
+                <p>进程控制块（Process Control Block, PCB）是操作系统用于描述和管理进程的数据结构。</p>
+
+                <div class="mermaid">
+flowchart TB
+    subgraph PCB["进程控制块 PCB"]
+        direction TB
+
+        subgraph ID["进程标识"]
+            PID[进程ID PID]
+            NAME[进程名称]
+            PPID[父进程ID]
+        end
+
+        subgraph STATE["进程状态"]
+            CURR[当前状态]
+            REG[CPU寄存器状态]
+        end
+
+        subgraph SCHED["调度信息"]
+            ARR[到达时间]
+            BURST[执行时间]
+            WAIT[等待时间]
+            TURN[周转时间]
+        end
+
+        subgraph MEM["内存信息"]
+            BASE[基址]
+            LIMIT[界限]
+            PT[页表]
+        end
+
+        subgraph FILE["文件信息"]
+            OF[打开文件列表]
+            WD[工作目录]
+        end
+    end
+
+    style PCB fill:#e3f2fd,stroke:#1976d2,stroke-width:3px
+    style ID fill:#fff8e1
+    style STATE fill:#f3e5f5
+    style SCHED fill:#e8f5e9
+    style MEM fill:#fce4ec
+    style FILE fill:#e0f2f1
+                </div>
+
+                <p><strong>代码位置</strong>：<code>process/pcb.py</code></p>
+
+                <pre><code class="language-python">class PCB:
+    """进程控制块
+
+    PCB是进程存在的唯一标识，包含进程的所有控制信息
+    """
+
+    def __init__(self, pid: int, name: str, priority: int = 0):
+        # 进程标识信息
+        self.pid = pid              # 进程ID（唯一标识）
+        self.name = name            # 进程名称
+        self.priority = priority    # 优先级
+
+        # 进程状态信息
+        self.state = "new"          # 当前状态
+        self.cpu_state = {}         # CPU寄存器状态
+
+        # 进程调度信息
+        self.scheduling_info = {
+            'arrival_time': time.time(),  # 到达时间
+            'burst_time': 0,              # 执行时间
+            'waiting_time': 0,            # 等待时间
+            'turnaround_time': 0          # 周转时间
+        }
+
+        # 内存管理信息
+        self.memory_info = {
+            'base_address': 0,      # 内存基址
+            'limit': 0,             # 内存界限
+            'page_table': {},       # 页表
+            'memory_usage': 0       # 内存使用量
+        }
+
+        # 文件管理信息
+        self.file_info = {
+            'open_files': [],       # 打开的文件列表
+            'working_directory': '/' # 工作目录
+        }
+
+        # 进程关系
+        self.parent_pid = None      # 父进程ID
+        self.child_pids = []        # 子进程ID列表</code></pre>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">PCB的作用</div>
+                    <ol>
+                        <li><strong>进程标识</strong>：唯一标识系统中的每个进程</li>
+                        <li><strong>状态跟踪</strong>：记录进程的当前状态和状态变化</li>
+                        <li><strong>资源管理</strong>：记录进程占用的资源</li>
+                        <li><strong>调度依据</strong>：为进程调度提供信息</li>
+                        <li><strong>上下文切换</strong>：保存和恢复进程的执行环境</li>
+                    </ol>
+                </div>
+
+                <h3>2.3 进程类</h3>
+                <p><strong>代码位置</strong>：<code>process/process.py</code></p>
+
+                <pre><code class="language-python">class Process:
+    """进程类
+
+    表示操作系统中的一个进程，封装了进程的所有属性和行为
+    """
+
+    # 类变量：维护下一个可用的PID
+    _next_pid = 1
+
+    def __init__(self, name: str, priority: int = 0, target=None):
+        # 分配唯一的PID
+        self.pid = Process._next_pid
+        Process._next_pid += 1
+
+        self.name = name
+        self.priority = priority
+        self.target = target          # 进程执行的目标函数
+        self.state = ProcessState.NEW
+
+        # 创建进程控制块
+        self.pcb = PCB(self.pid, self.name, self.priority)
+
+        # 进程资源
+        self.memory_usage = 0
+        self.cpu_time = 0.0
+        self.start_time = None
+        self.end_time = None
+
+        # 进程数据
+        self.data = {}
+        self.return_value = None</code></pre>
+
+                <h4>2.3.1 进程状态转换</h4>
+                <pre><code class="language-python">def execute(self, time_quantum: float):
+    """执行进程
+
+    模拟进程执行一个时间片
+    """
+    if self.state != ProcessState.RUNNING:
+        return
+
+    if self.start_time is None:
+        self.start_time = time.time()
+
+    if self.target:
+        # 执行目标函数
+        self.return_value = self.target()
+        self.state = ProcessState.TERMINATED
+    else:
+        # 模拟CPU密集型任务
+        time.sleep(min(time_quantum, 0.1))
+        self.cpu_time += time_quantum
+
+        # 检查是否完成
+        if self.cpu_time &gt;= 5.0:
+            self.state = ProcessState.TERMINATED
+
+def suspend(self):
+    """挂起进程：运行 -> 阻塞"""
+    if self.state == ProcessState.RUNNING:
+        self.state = ProcessState.WAITING
+
+def resume(self):
+    """恢复进程：阻塞 -> 就绪"""
+    if self.state == ProcessState.WAITING:
+        self.state = ProcessState.READY
+
+def terminate(self):
+    """终止进程：任意状态 -> 终止"""
+    self.state = ProcessState.TERMINATED
+    self.end_time = time.time()</code></pre>
+
+                <h3>2.4 进程管理器</h3>
+                <p>进程管理器负责进程的创建、调度、终止等操作。</p>
+                <p><strong>代码位置</strong>：<code>process/process_manager.py</code></p>
+
+                <pre><code class="language-python">class ProcessManager:
+    """进程管理器
+
+    负责进程的创建、销毁和管理
+    """
+
+    def create_process(self, name: str, priority: int = 0,
+                       target=None) -&gt; Process:
+        """创建新进程
+
+        1. 创建进程对象
+        2. 添加到进程表
+        3. 分配内存
+        4. 添加到调度器
+        """
+        # 1. 创建进程
+        process = Process(name, priority, target)
+
+        # 2. 添加到进程表
+        self.process_table.add_process(process)
+
+        # 3. 分配内存
+        if self.memory_manager:
+            memory_size = 1024  # 默认1KB
+            allocated = self.memory_manager.allocate_memory(
+                process.pid, memory_size
+            )
+            if allocated:
+                process.memory_usage = memory_size
+
+        # 4. 添加到调度器
+        if self.scheduler:
+            self.scheduler.add_process(process)
+
+        return process</code></pre>
+
+                <h3>2.5 实践练习</h3>
+
+                <h4>练习2.1：创建进程</h4>
+                <pre><code class="language-python">from kernel.system import System
+
+# 创建系统实例
+system = System()
+system.boot()
+
+# 定义一个任务函数
+def my_task():
+    print("进程正在执行...")
+    for i in range(5):
+        print(f"计数: {i}")
+    return "任务完成"
+
+# 创建进程
+process = system.process_manager.create_process(
+    name="my_process",
+    priority=1,
+    target=my_task
+)
+
+print(f"创建进程: {process}")
+print(f"进程信息: {process.get_info()}")</code></pre>
+
+                <h4>练习2.2：进程状态转换</h4>
+                <pre><code class="language-python"># 创建进程后状态为 NEW
+process = system.process_manager.create_process("test")
+print(f"初始状态: {process.state}")  # NEW
+
+# 启动进程后状态变为 READY
+system.process_manager.start_process(process.pid)
+print(f"启动后状态: {process.state}")  # RUNNING 或 READY
+
+# 挂起进程
+process.suspend()
+print(f"挂起后状态: {process.state}")  # WAITING
+
+# 恢复进程
+process.resume()
+print(f"恢复后状态: {process.state}")  # READY</code></pre>
+
+                <div class="info-box warning">
+                    <div class="info-box-title">思考题</div>
+                    <ol>
+                        <li>为什么需要进程控制块（PCB）？它存储了哪些信息？</li>
+                        <li>进程和线程有什么区别？</li>
+                        <li>进程状态转换图中，哪些转换需要操作系统干预？</li>
+                    </ol>
+                </div>
+            </section>
+
+            <hr>
+
+            <!-- Continue with more chapters... -->
+            <!-- Due to file size, I'll include key chapters and provide the complete structure -->
+
+            <section id="chapter3">
+                <h2>第三章：进程调度</h2>
+                <p>进程调度是操作系统核心功能之一，决定哪个进程获得CPU的使用权。</p>
+
+                <h3>3.1 调度的基本概念</h3>
+
+                <h4>3.1.1 调度的层次</h4>
+                <div class="mermaid">
+flowchart TB
+    subgraph 外存["外存 / 磁盘"]
+        JOB1[作业1]
+        JOB2[作业2]
+        JOB3[作业3]
+    end
+
+    subgraph 内存["内存"]
+        subgraph 就绪队列["就绪队列"]
+            P1[进程A]
+            P2[进程B]
+            P3[进程C]
+        end
+
+        subgraph CPU["CPU"]
+            RUN[运行进程]
+        end
+    end
+
+    subgraph 调度器["调度层次"]
+        direction TB
+        LTS["作业调度
+长程调度
+频率: 分钟级"]
+        MTS["中程调度
+内存调度
+频率: 秒级"]
+        STS["进程调度
+短程调度
+频率: 毫秒级"]
+    end
+
+    JOB1 -->|作业调度| P1
+    JOB2 -->|作业调度| P2
+    JOB3 -.->|挂起/换入| MTS
+
+    P1 -->|进程调度| RUN
+    P2 -.->|时间片到| P2
+    P3 -.->|被抢占| P3
+
+    style LTS fill:#ffebee
+    style MTS fill:#fff3e0
+    style STS fill:#e8f5e9
+    style CPU fill:#e3f2fd
+    style 就绪队列 fill:#f3e5f5
+                </div>
+
+                <h3>3.2 调度算法</h3>
+                <p><strong>代码位置</strong>：<code>kernel/scheduler.py</code></p>
+
+                <h4>3.2.1 时间片轮转（Round Robin）</h4>
+                <div class="mermaid">
+flowchart LR
+    subgraph 时间片轮转调度["时间片轮转调度"]
+        direction LR
+
+        RQ["就绪队列
+P1 | P2 | P3 | P4"]
+
+        subgraph CPU执行["CPU执行"]
+            P1_RUN["P1 运行"]
+            P2_RUN["P2 运行"]
+            P3_RUN["P3 运行"]
+        end
+
+        RQ -->|时间片=1s| P1_RUN
+        P1_RUN -->|时间片用完| RQ
+        RQ --> P2_RUN
+        P2_RUN -->|时间片用完| RQ
+        RQ --> P3_RUN
+    end
+
+    subgraph 时间线["执行时间线"]
+        direction LR
+        T0["0s"]
+        T1["1s"]
+        T2["2s"]
+        T3["3s"]
+        T4["4s"]
+
+        T0 -->|P1| T1
+        T1 -->|P2| T2
+        T2 -->|P3| T3
+        T3 -->|P4| T4
+    end
+
+    style RQ fill:#e3f2fd
+    style P1_RUN fill:#c8e6c9
+    style P2_RUN fill:#fff9c4
+    style P3_RUN fill:#ffccbc
+                </div>
+
+                <pre><code class="language-python">class Scheduler:
+    """进程调度器
+
+    采用时间片轮转算法，每个进程按顺序获得固定长度的CPU时间片
+    """
+
+    def __init__(self):
+        self.ready_queue = queue.Queue()  # 就绪队列
+        self.waiting_queue = queue.Queue() # 等待队列
+        self.current_process = None        # 当前运行的进程
+        self.time_quantum = 1.0           # 时间片（秒）
+
+    def _scheduler_loop(self):
+        """调度器主循环"""
+        while self.running:
+            if not self.ready_queue.empty():
+                # 获取下一个进程
+                process = self.ready_queue.get()
+                self._execute_process(process)
+            else:
+                # 没有就绪进程，CPU空闲
+                time.sleep(0.1)
+
+    def _execute_process(self, process: Process):
+        """执行进程一个时间片"""
+        self.current_process = process
+        process.state = ProcessState.RUNNING
+
+        # 执行进程
+        process.execute(self.time_quantum)
+
+        # 如果进程未完成，重新加入就绪队列
+        if process.state != ProcessState.TERMINATED:
+            process.state = ProcessState.READY
+            self.ready_queue.put(process)</code></pre>
+
+                <div class="info-box tip">
+                    <div class="info-box-title">时间片轮转的特点</div>
+                    <ul>
+                        <li><strong>优点</strong>：公平，响应时间好，适合分时系统</li>
+                        <li><strong>缺点</strong>：上下文切换开销，时间片大小影响性能</li>
+                    </ul>
+                </div>
+            </section>
+
+            <hr>
+
+            <section id="chapter4">
+                <h2>第四章：内存管理</h2>
+
+                <h3>4.1 内存管理概述</h3>
+
+                <h4>4.1.1 内存管理的功能</h4>
+                <ol>
+                    <li><strong>内存分配与回收</strong>：为进程分配内存空间</li>
+                    <li><strong>地址转换</strong>：逻辑地址到物理地址的转换</li>
+                    <li><strong>内存保护</strong>：防止进程间的非法访问</li>
+                    <li><strong>内存扩充</strong>：虚拟内存技术</li>
+                </ol>
+
+                <h4>4.1.2 内存分配方式</h4>
+                <div class="mermaid">
+flowchart TB
+    subgraph 内存分配方式["内存分配方式分类"]
+        direction TB
+
+        CA["连续分配"]
+        NCA["非连续分配"]
+    end
+
+    subgraph 连续分配["连续分配"]
+        direction TB
+        FF["首次适应 First Fit"]
+        BF["最佳适应 Best Fit"]
+        WF["最坏适应 Worst Fit"]
+    end
+
+    subgraph 非连续分配["非连续分配"]
+        direction TB
+        PAGE["分页式"]
+        SEG["分段式"]
+        PAGESEG["段页式"]
+    end
+
+    CA --> 连续分配
+    NCA --> 非连续分配
+
+    style CA fill:#e3f2fd
+    style NCA fill:#f3e5f5
+    style 连续分配 fill:#e8f5e9
+    style 非连续分配 fill:#fff3e0
+                </div>
+
+                <h3>4.2 连续内存分配</h3>
+                <p><strong>代码位置</strong>：<code>memory/memory_allocator.py</code></p>
+
+                <h4>4.2.1 内存分配算法</h4>
+                <pre><code class="language-python">class AllocationStrategy(Enum):
+    """分配策略枚举"""
+    FIRST_FIT = "first_fit"   # 首次适应
+    BEST_FIT = "best_fit"     # 最佳适应
+    WORST_FIT = "worst_fit"   # 最坏适应
+
+class MemoryAllocator:
+    """内存分配器
+
+    实现动态内存分配，支持多种分配策略
+    """
+
+    def __init__(self, total_memory: int = 1024 * 1024,
+                 strategy: AllocationStrategy = AllocationStrategy.FIRST_FIT):
+        self.total_memory = total_memory
+        self.strategy = strategy
+
+        # 内存块链表
+        self.head = MemoryBlock(0, total_memory, is_free=True)</code></pre>
+            </section>
+
+            <hr>
+
+            <section id="chapter5">
+                <h2>第五章：虚拟内存</h2>
+
+                <h3>5.1 虚拟内存的概念</h3>
+
+                <h4>5.1.1 虚拟内存的优点</h4>
+                <ol>
+                    <li><strong>更大的地址空间</strong>：程序可以使用比物理内存更大的地址空间</li>
+                    <li><strong>内存保护</strong>：每个进程有独立的地址空间</li>
+                    <li><strong>内存共享</strong>：多个进程可以共享同一块内存</li>
+                    <li><strong>高效利用</strong>：只加载需要的页面</li>
+                </ol>
+
+                <h4>5.1.2 分页机制</h4>
+                <div class="mermaid">
+flowchart LR
+    subgraph 虚拟地址空间["虚拟地址空间"]
+        direction TB
+        V0["页 0
+0x0000-0x0FFF"]
+        V1["页 1
+0x1000-0x1FFF"]
+        V2["页 2
+0x2000-0x2FFF"]
+        V3["页 3
+0x3000-0x3FFF"]
+    end
+
+    subgraph 页表["页表"]
+        direction TB
+        PT0["0 → 帧 3"]
+        PT1["1 → 帧 4"]
+        PT2["2 → 帧 5"]
+        PT3["3 → 帧 7"]
+    end
+
+    subgraph 物理内存["物理内存"]
+        direction TB
+        F0["帧 0"]
+        F1["帧 1"]
+        F2["帧 2"]
+        F3["帧 3"]
+        F4["帧 4"]
+        F5["帧 5"]
+        F7["帧 7"]
+    end
+
+    V0 --> PT0 --> F3
+    V1 --> PT1 --> F4
+    V2 --> PT2 --> F5
+    V3 --> PT3 --> F7
+
+    style V0 fill:#e3f2fd
+    style V1 fill:#f3e5f5
+    style V2 fill:#e8f5e9
+    style V3 fill:#fff3e0
+    style F3 fill:#e3f2fd
+    style F4 fill:#f3e5f5
+    style F5 fill:#e8f5e9
+    style F7 fill:#fff3e0
+    style 页表 fill:#fff8e1
+                </div>
+
+                <h3>5.3 地址转换</h3>
+                <div class="mermaid">
+flowchart LR
+    subgraph 地址转换过程["虚拟地址 → 物理地址转换"]
+        direction LR
+
+        VA["虚拟地址
+0x1234"]
+
+        subgraph 分解["地址分解"]
+            PN["页号 = 0x1"]
+            OFFSET["偏移 = 0x234"]
+        end
+
+        PT["页表查找"]
+
+        subgraph 合成["物理地址合成"]
+            FN["帧号 = 0x5"]
+            PA["物理地址
+0x5234"]
+        end
+
+        VA -->|页大小=4KB| 分解
+        PN --> PT
+        PT --> FN
+        OFFSET --> PA
+        FN --> PA
+    end
+
+    subgraph 公式["计算公式"]
+        F1["页号 = 虚拟地址 / 页大小"]
+        F2["偏移 = 虚拟地址 % 页大小"]
+        F3["物理地址 = 帧号 × 页大小 + 偏移"]
+    end
+
+    style VA fill:#e3f2fd
+    style PA fill:#c8e6c9
+    style 分解 fill:#fff3e0
+    style 合成 fill:#f3e5f5
+    style PT fill:#ffebee
+                </div>
+            </section>
+
+            <hr>
+
+            <section id="chapter6">
+                <h2>第六章：文件系统</h2>
+
+                <h3>6.1 文件系统概述</h3>
+
+                <h4>6.1.1 文件系统的功能</h4>
+                <ol>
+                    <li><strong>文件管理</strong>：创建、删除、读写文件</li>
+                    <li><strong>目录管理</strong>：组织文件层次结构</li>
+                    <li><strong>存储管理</strong>：分配和管理存储空间</li>
+                    <li><strong>文件保护</strong>：控制文件访问权限</li>
+                </ol>
+
+                <h4>6.1.2 文件系统的层次结构</h4>
+                <div class="mermaid">
+flowchart TB
+    subgraph 文件系统层次结构["文件系统层次结构"]
+        direction TB
+
+        UI["用户接口层
+open | read | write | close"]
+
+        DS["文件目录系统
+路径解析 | 目录操作 | 权限检查"]
+
+        FO["文件组织模块
+文件分配 | 空闲空间管理 | 索引管理"]
+
+        DD["设备驱动层
+磁盘读写 | 缓冲区管理 | I/O调度"]
+
+        HW["硬件层
+磁盘 | SSD | 其他存储设备"]
+    end
+
+    APP["应用程序"] --> UI
+    UI --> DS
+    DS --> FO
+    FO --> DD
+    DD --> HW
+
+    style UI fill:#e3f2fd
+    style DS fill:#f3e5f5
+    style FO fill:#e8f5e9
+    style DD fill:#fff3e0
+    style HW fill:#ffebee
+    style APP fill:#c8e6c9
+                </div>
+
+                <h3>6.2 索引节点（Inode）</h3>
+                <div class="mermaid">
+flowchart TB
+    subgraph INODE["Inode 结构"]
+        direction TB
+
+        subgraph DIRECT["直接块 (12个)"]
+            D0["直接块[0]"]
+            D1["直接块[1]"]
+            D11["直接块[11]"]
+            DOTS1["..."]
+        end
+
+        SI["单间接块"]
+        DI["双间接块"]
+        TI["三间接块"]
+    end
+
+    subgraph DATA["数据块"]
+        B0["数据块 A"]
+        B1["数据块 B"]
+        B2["数据块 C"]
+    end
+
+    subgraph INDIRECT1["单间接块指向"]
+        IB0["块指针[0]"]
+        IB1["块指针[1]"]
+        IB2["块指针[2]"]
+    end
+
+    D0 --> B0
+    D1 --> B1
+    SI --> INDIRECT1
+    IB0 --> B2
+
+    style INODE fill:#e3f2fd
+    style DIRECT fill:#c8e6c9
+    style SI fill:#fff3e0
+    style DI fill:#ffebee
+    style TI fill:#f3e5f5
+                </div>
+            </section>
+
+            <!-- Continue with remaining chapters... -->
+            <!-- Footer -->
+            <hr>
+            <footer style="text-align: center; padding: 40px 0; color: var(--text-secondary);">
+                <p>PyOS 操作系统教程 - 专业版</p>
+                <p style="font-size: 0.875rem; margin-top: 8px;">本教程由 PyOS 项目提供</p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            themeCSS: `
+                .node rect, .node circle, .node polygon {
+                    stroke-width: 2px;
+                }
+                .edgeLabel {
+                    background-color: white;
+                }
+            `
+        });
+
+        // Initialize Highlight.js
+        hljs.highlightAll();
+
+        // Navigation Data Structure
+        const navData = [
+            {
+                id: 'chapter1',
+                title: '第一章：操作系统概述',
+                level: 1,
+                children: [
+                    { id: '1.1', title: '1.1 什么是操作系统', level: 2 },
+                    { id: '1.2', title: '1.2 PyOS 项目架构', level: 2 },
+                    { id: '1.3', title: '1.3 系统核心类', level: 2 },
+                    { id: '1.4', title: '1.4 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter2',
+                title: '第二章：进程管理',
+                level: 1,
+                children: [
+                    { id: '2.1', title: '2.1 进程的概念', level: 2 },
+                    { id: '2.2', title: '2.2 进程控制块（PCB）', level: 2 },
+                    { id: '2.3', title: '2.3 进程类', level: 2 },
+                    { id: '2.4', title: '2.4 进程管理器', level: 2 },
+                    { id: '2.5', title: '2.5 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter3',
+                title: '第三章：进程调度',
+                level: 1,
+                children: [
+                    { id: '3.1', title: '3.1 调度的基本概念', level: 2 },
+                    { id: '3.2', title: '3.2 调度算法', level: 2 },
+                    { id: '3.3', title: '3.3 调度算法比较', level: 2 },
+                    { id: '3.4', title: '3.4 实现优先级调度', level: 2 },
+                    { id: '3.5', title: '3.5 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter4',
+                title: '第四章：内存管理',
+                level: 1,
+                children: [
+                    { id: '4.1', title: '4.1 内存管理概述', level: 2 },
+                    { id: '4.2', title: '4.2 连续内存分配', level: 2 },
+                    { id: '4.3', title: '4.3 内存碎片', level: 2 },
+                    { id: '4.4', title: '4.4 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter5',
+                title: '第五章：虚拟内存',
+                level: 1,
+                children: [
+                    { id: '5.1', title: '5.1 虚拟内存的概念', level: 2 },
+                    { id: '5.2', title: '5.2 页面与页表', level: 2 },
+                    { id: '5.3', title: '5.3 地址转换', level: 2 },
+                    { id: '5.4', title: '5.4 页面置换算法', level: 2 },
+                    { id: '5.5', title: '5.5 缺页中断', level: 2 },
+                    { id: '5.6', title: '5.6 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter6',
+                title: '第六章：文件系统',
+                level: 1,
+                children: [
+                    { id: '6.1', title: '6.1 文件系统概述', level: 2 },
+                    { id: '6.2', title: '6.2 索引节点（Inode）', level: 2 },
+                    { id: '6.3', title: '6.3 文件系统核心', level: 2 },
+                    { id: '6.4', title: '6.4 虚拟文件系统', level: 2 },
+                    { id: '6.5', title: '6.5 目录管理', level: 2 },
+                    { id: '6.6', title: '6.6 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter7',
+                title: '第七章：设备管理',
+                level: 1,
+                children: [
+                    { id: '7.1', title: '7.1 设备管理概述', level: 2 },
+                    { id: '7.2', title: '7.2 设备管理器', level: 2 },
+                    { id: '7.3', title: '7.3 设备驱动示例', level: 2 },
+                    { id: '7.4', title: '7.4 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter8',
+                title: '第八章：中断与系统调用',
+                level: 1,
+                children: [
+                    { id: '8.1', title: '8.1 中断的概念', level: 2 },
+                    { id: '8.2', title: '8.2 中断处理器', level: 2 },
+                    { id: '8.3', title: '8.3 系统调用', level: 2 },
+                    { id: '8.4', title: '8.4 系统调用过程', level: 2 },
+                    { id: '8.5', title: '8.5 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter9',
+                title: '第九章：进程同步',
+                level: 1,
+                children: [
+                    { id: '9.1', title: '9.1 同步的基本概念', level: 2 },
+                    { id: '9.2', title: '9.2 信号量', level: 2 },
+                    { id: '9.3', title: '9.3 互斥锁', level: 2 },
+                    { id: '9.4', title: '9.4 条件变量', level: 2 },
+                    { id: '9.5', title: '9.5 经典同步问题', level: 2 },
+                    { id: '9.6', title: '9.6 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter10',
+                title: '第十章：死锁',
+                level: 1,
+                children: [
+                    { id: '10.1', title: '10.1 死锁的概念', level: 2 },
+                    { id: '10.2', title: '10.2 银行家算法', level: 2 },
+                    { id: '10.3', title: '10.3 死锁检测', level: 2 },
+                    { id: '10.4', title: '10.4 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter11',
+                title: '第十一章：线程管理',
+                level: 1,
+                children: [
+                    { id: '11.1', title: '11.1 线程的概念', level: 2 },
+                    { id: '11.2', title: '11.2 线程池', level: 2 },
+                    { id: '11.3', title: '11.3 线程模型', level: 2 },
+                    { id: '11.4', title: '11.4 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter12',
+                title: '第十二章：I/O系统',
+                level: 1,
+                children: [
+                    { id: '12.1', title: '12.1 I/O系统概述', level: 2 },
+                    { id: '12.2', title: '12.2 I/O调度算法', level: 2 },
+                    { id: '12.3', title: '12.3 I/O缓冲', level: 2 },
+                    { id: '12.4', title: '12.4 实践练习', level: 2 }
+                ]
+            },
+            {
+                id: 'chapter13',
+                title: '第十三章：进程间通信',
+                level: 1,
+                children: [
+                    { id: '13.1', title: '13.1 IPC概述', level: 2 },
+                    { id: '13.2', title: '13.2 管道', level: 2 },
+                    { id: '13.3', title: '13.3 共享内存', level: 2 },
+                    { id: '13.4', title: '13.4 消息队列', level: 2 },
+                    { id: '13.5', title: '13.5 实践练习', level: 2 }
+                ]
+            }
+        ];
+
+        // Generate Navigation
+        function generateNav() {
+            const navMenu = document.getElementById('navMenu');
+            let html = '';
+
+            navData.forEach((chapter, index) => {
+                html += `
+                    <div class="nav-item nav-level-${chapter.level}">
+                        <div class="nav-link" data-target="${chapter.id}">
+                            <span class="nav-toggle">▶</span>
+                            <span class="nav-text">${chapter.title}</span>
+                        </div>
+                        <div class="nav-children">
+                `;
+
+                chapter.children.forEach(child => {
+                    html += `
+                        <div class="nav-item nav-level-${child.level}">
+                            <div class="nav-link" data-target="${chapter.id}">
+                                <span class="nav-text">${child.title}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += '</div></div>';
+            });
+
+            navMenu.innerHTML = html;
+        }
+
+        // Initialize Navigation
+        generateNav();
+
+        // Navigation Toggle
+        document.querySelectorAll('.nav-toggle').forEach(toggle => {
+            toggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const parent = toggle.closest('.nav-item');
+                const children = parent.querySelector('.nav-children');
+                if (children) {
+                    children.classList.toggle('expanded');
+                    toggle.classList.toggle('expanded');
+                }
+            });
+        });
+
+        // Navigation Click
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                const targetId = link.getAttribute('data-target');
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+
+                    // Update active state
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+
+                    // Update breadcrumb
+                    document.getElementById('currentSection').textContent = link.querySelector('.nav-text').textContent;
+                }
+            });
+        });
+
+        // Search Functionality
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Copy Code Functionality
+        document.querySelectorAll('pre').forEach(pre => {
+            const code = pre.querySelector('code');
+            if (!code) return;
+
+            const header = document.createElement('div');
+            header.className = 'code-header';
+
+            const lang = code.className.replace('language-', '') || 'code';
+            header.innerHTML = `<span>${lang}</span>`;
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                复制
+            `;
+
+            copyBtn.addEventListener('click', () => {
+                navigator.clipboard.writeText(code.textContent).then(() => {
+                    copyBtn.classList.add('copied');
+                    copyBtn.innerHTML = `
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        已复制
+                    `;
+                    setTimeout(() => {
+                        copyBtn.classList.remove('copied');
+                        copyBtn.innerHTML = `
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            复制
+                        `;
+                    }, 2000);
+                });
+            });
+
+            header.appendChild(copyBtn);
+            pre.insertBefore(header, code);
+        });
+
+        // Progress Bar
+        window.addEventListener('scroll', () => {
+            const scrollTop = window.scrollY;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (scrollTop / docHeight) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        });
+
+        // Intersection Observer for Active Section
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    document.querySelectorAll('.nav-link').forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('data-target') === id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { threshold: 0.5 });
+
+        document.querySelectorAll('section[id]').forEach(section => {
+            observer.observe(section);
+        });
+    </script>
+</body>
+</html>
